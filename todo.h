@@ -36,25 +36,6 @@ public:
 
 	// 수정 전
 
-	static todo* head_todo;					// 외부에서 참조하기 위해 그리고 todo끼리 공유하기 위한
-
-	static todo* imsi_todo;					// 막 생성된 todo 객체를 어떻게 할지까지 보관할 static 변수.
-	
-	
-	~todo();
-
-
-	void setdetails(string details);
-
-	void add_todolist(todo* p);						// 할일 연결리스트에 할 일을 추가하는 함수.
-	
-	
-	void get_todo_data();
-
-	void remove_todo(todo* p);					// 카테고리 연결리스트에서 할 일을 제거하는 함수.
-
-	void check_important(todo* p);				// 중요함 표시가 안되어 있으면 이름 양 옆에 *** 추가, 되어 있으면 ***제거.
-
 };
 
 

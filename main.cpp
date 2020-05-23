@@ -1,4 +1,3 @@
-
 #include "command.h"
 
 #include <iostream>
@@ -6,10 +5,10 @@ using namespace std;
 
 
 void read_command();
-
 void cate_menu();
 void todo_menu();
 
+void menu();
 
 int main() {
 
@@ -22,9 +21,7 @@ int main() {
 
 void read_command() {
 
-	int command;
-
-
+	int command;										// 명령을 실행하기 위한 변수.
 
 	while (1) {
 		menu();
@@ -44,10 +41,9 @@ void read_command() {
 		else if (command == 4) {
 			show_all();
 		}
-
-		//else if (command == "load") {
-		//	load();
-		//}
+		else if (command == 5) {
+			load();
+		}
 		//else if (command == "save") {
 		//	save();
 		//}
@@ -57,6 +53,14 @@ void read_command() {
 		}
 
 	}
+
+}
+
+void menu() {												 // 4. all list 부분 구현해야 함.
+	cout << "\t\tTo_Do_List_Program" << endl;
+	cout << "==========================================================" << endl;
+	cout << "\t\t명령어 목록: \n\t\t1. 중요한 일 보기	\n\t\t2. category\n\t\t3. todo\n\t\t4. all list\n\t\t5. 파일 불러오기\n\t\t10. exit\n" << endl;
+	cout << "==========================================================" << endl;
 
 }
 

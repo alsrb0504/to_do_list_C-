@@ -19,8 +19,7 @@ class category {
 
 public:
 	category(string cate_name);							// 생성자
-	category* create_cate(string cate_name);			// 카테고리 객체 동적 생성 함수.
-	
+	category* create_cate(string cate_name);			// 카테고리 객체 동적 생성 함수.	
 
 	void set_next_cate(category* p);					// 카테고리의 다음 주소를 입력받는 함수.
 	void set_prev_cate(category* p);					// 카테고리의 이전 주소를 입력받는 함수.
@@ -36,39 +35,8 @@ public:
 
 	void increase_index();								// remove에서 필요. 카테고리들의 index를 1씩 감소시켜주는 함수.
 	
-		
-	
-	// 수정 안한 것들.
-
-
-	
-	
-
-	void set_cate_name(string cate_name);		// 카테고리의 이름을 수정하는 함수.
-
-
-
-	//void add_to_cate(category* ptr_cate);			// 카테고리 연결리스트에 카테고리를 추가하는 함수.
-
-	void show_cate_name();						// 카테고리의 이름을 보여주는 함수.
-	
-
-	void remove_linkedlist_cate(category* cate);		// 카테고리 연결리스트에서 카테고리를 제거하는 함수.
-	void empty_category();								// 모든 카테고리를 지우는 함수.
-
-	bool is_empty_cate();						// 카테고리가 비었는지 확인하는 함수.
-
-	void add_todo_cate(todo* ptr_todo);			// imsi_cate의 할 일을 cate 연결리스트에 추가해주는 함수.
-
-	todo* getFirsttodo();
-
-
-
-	static int cate_num;						// 카테고리 객체들이 공유할 일련번호 변수.
-
-	static category* head_cate;					// 카테고리 연결리스트들이 공유할 변수.		// 0, 1은 이미 사용, 2부터 새로 생성되는 카테고리에 넣을 것.
+	static int cate_num;								// 카테고리 객체들이 공유할 일련번호 변수.
 };
-
 
 
 // 이 구조체를 command로 옮겨야 할까??

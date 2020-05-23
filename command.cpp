@@ -3,11 +3,11 @@
 #include "command.h"
 #include <iostream>
 #include <string>
+#include <fstream>
 
-//#include <fstream>
 using namespace std;
 
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 1000
 
 Cate_Struct cate_struct;						// 카테고리 연결리스트의 head, tail, 카테고리의 수를 저장하기 위한 구조체 변수 선언.	
 
@@ -28,6 +28,106 @@ void init_setting() {
 	
 	cout << "초기 설정: " << endl;
 	cout << "1번 카테고리를 \"미분류\" 2번 카테고리를 \"중요\"로 설정" << endl << endl;
+}
+
+
+void load() {														// 파일 열기 함수.
+	
+	ifstream in("to_do_list.txt");						// 읽기용 객체 생성.
+
+	string s;
+	/*char buf[BUFFER_SIZE];*/
+
+	if (!(in.is_open())) {
+		cout << "not found file. " << endl;
+		return;
+	}	
+
+	while (in) {
+		getline(in, s);
+		cout << s << endl;
+
+		if (s[0] == '@') {			// 카테고리
+
+			string imsi_name = s.substr(1, s.size());
+
+			if (!(cate_name_overlap(imsi_name))) {
+				continue;
+			}
+			
+			category* ptr_cate = NULL;
+			ptr_cate = ptr_cate->create_cate(imsi_name);					// 카테고리 객체 하나 생성.
+			
+			add_to_cate(ptr_cate);
+		}
+		else if (s[0] == '#') {		// 할 일.
+			// 구분자는 '#'
+			// string 구분하는 함수 찾아보기.
+			string imsi_todo = s.substr(1, s.size());
+			load_add_todo(imsi_todo);
+		}
+
+	}
+
+	in.close();
+}
+
+void load_add_todo(string imsi_todo) {							
+	
+	string cate, title, month, date, detail;
+
+	split(imsi_todo, cate);									 // split 함수로 주소를 받아 문장에서 필요한 것들 추출.
+	split(imsi_todo, title);
+	split(imsi_todo, month);
+	split(imsi_todo, date);
+	split(imsi_todo, detail);
+
+	string time = month;
+	time.append(date);
+	cout << time;
+
+	// cate 고리를 찾고
+	// todo 객체를 만들어서 연결.
+	
+	category* ptr_cate = search_cate(cate);			
+
+	if (ptr_cate == NULL) {											// 예외처리 null
+		cout << "\t메모장에 잘못 적으셨습니다." << endl;
+		return;
+	}
+
+	todo* ptr_todo = NULL;
+	ptr_todo = ptr_todo->create_todo(title, time, detail);						// 할일 객체 생성.
+
+	sort_todo_to_cate(ptr_todo, ptr_cate->get_cate_index());
+
+}
+
+void split(string& imsi_todo, string& s) {			// 포인터나 리터럴을 사용해야 할 듯.
+
+	int length = imsi_todo.find("#");
+	s = imsi_todo.substr(0, length);
+
+	imsi_todo = imsi_todo.substr(length + 1, imsi_todo.size());
+}
+
+category* search_cate(string name) {
+
+	category* p = cate_struct.cate_head;
+
+	if (p == NULL) {
+		cout << "\t카테고리가 비었습니다." << endl;
+		return NULL;
+	}
+
+	while (p != NULL) {
+		
+		if (name == p->get_cate_name()) {
+			return p;
+		}
+		p = p->get_next_cate();
+	}
+	return NULL;							// 못 찾은 경우. 메모장에 잘못 적혀 있는 것.
 }
 
 void show_important() {
@@ -113,10 +213,15 @@ void remove_todo() {
 
 	category* ptr_cate = select_cate();					// 요걸로 카테고리 목록 출력 및 필요한 카테고리의 주소 받음.
 
+	if (ptr_cate == NULL) {
+		cout << "\t제거 실패!!" << endl << endl;		// 예외 처리.
+		return;
+	}
+
 	todo* p = remove_search_todo(ptr_cate);				// 요걸 통해서 지울 todo를 찾음.
 
 	if (p == NULL) {							// 예외 처리.
-		cout << "제거 실패!!" << endl;
+		cout << "\t제거 실패!!" << endl << endl;
 		return;
 	}
 	
@@ -527,31 +632,39 @@ void create_category() {										// 카테고리 생성 함수.
 		cout << "생성할 카테고리의 이름을 입력해주세요.: ";
 		cin >> name;
 
+		if (!(cate_name_overlap(name))) {
+			// 중복된 게 있으면 생성 취고 해야 함.
+			return;
+		}
 		break;
-
-		//	// 기존의 카테고리에서 같은 이름 있는지 검색.
-		//	// null이 아닌 값 반환시 중복있는 거임.
-		//	category* overlap = search_cate(name);									// 요거 수정 필요.
-
-		//	if (overlap == NULL)
-		//		break;
-		//	else {
-		//		cout << "중복된 이름의 카테고리가 있습니다. 이름을 다시 입력해주세요." << endl;
-		//	}
-
-		//}
-
-		//category 객체를 하나 만들어서 접근해야 하는데, 어떻게 만들어야 하나.
 	}
 
 	category* ptr_cate = NULL;
 	ptr_cate = ptr_cate->create_cate(name);					// 카테고리 객체 하나 생성.
 
-	add_to_cate(ptr_cate);
-	
+	add_to_cate(ptr_cate);	
 }
 
+bool cate_name_overlap(string imsi_name) {
 
+	category* p = cate_struct.cate_head;
+
+	if (p == NULL) {
+		cout << "\t현재 카테고리가 비었습니다." << endl;
+		return true;
+	}
+
+	while (p != NULL) {
+
+		if (imsi_name == p->get_cate_name()) {
+			cout << "\t중복된 이름의 카테고리가 있습니다." << endl;
+			return false;
+		}
+		p = p->get_next_cate();
+	}
+
+	return true;
+}
 
 void add_to_cate(category* ptr_cate) {				// cate 구조체의 head와 tail에 생성된 category들을 연결시켜주는 함수.
 
@@ -577,17 +690,17 @@ void add_to_cate(category* ptr_cate) {				// cate 구조체의 head와 tail에 생성된 
 	cate_struct.size++;
 }
 
-void menu() {												 // 4. all list 부분 구현해야 함.
-	cout << "\t\tTo_Do_List_Program" << endl;
-	cout << "==========================================================" << endl;
-	cout << "\t\t명령어 목록: \n\t\t1. 중요한 일 보기	\n\t\t2. category\n\t\t3. todo\n\t\t4. all list\n\t\t10. exit\n" << endl;
-	cout << "==========================================================" << endl;
 
-}
+
+//void menu() {												 // 4. all list 부분 구현해야 함.
+//	cout << "\t\tTo_Do_List_Program" << endl;
+//	cout << "==========================================================" << endl;
+//	cout << "\t\t명령어 목록: \n\t\t1. 중요한 일 보기	\n\t\t2. category\n\t\t3. todo\n\t\t4. all list\n\t\t10. exit\n" << endl;
+//	cout << "==========================================================" << endl;
+//
+//}
 
 // 수정 전.															==========================
-
-
 
 
 //void add_todo_to_cate() {
@@ -638,74 +751,6 @@ void menu() {												 // 4. all list 부분 구현해야 함.
 //}
 
 
-
-//void show_cate_todo() {
-//	
-//	string name;
-//	cout << "할 일의 목록을 볼 카테고리의 이름을 입력해주세요.:";
-//	cin >> name;
-//
-//	category* ptr_cate = search_cate(name);
-//
-//	if (ptr_cate == NULL) {
-//		cout << "입력한 이름의 카테고리가 없습니다." << endl;
-//		cout << "category 메뉴의 처음으로 돌아갑니다." << endl;
-//		return;
-//	}
-//
-//	show_cate_todos(ptr_cate);
-//}
-
-//void show_cate_todos(category* ptr_cate) {
-//
-//	todo* p = ptr_cate->getFirsttodo();				// 이 카테고리의 첫 번째 할 일을 반환하는 함수.
-//	todo* q = NULL;
-//
-//	if (p == NULL) {
-//		cout << "이 카테고리에 할 일이 없습니다." << endl;
-//		return;
-//	}
-//
-//	while (p != NULL) {
-//		
-//		p->get_todo_data();
-//
-//		q = p;
-//		p = p->next_cate_todo;
-//	}
-//
-//}
-
-
-
-
-
-
-
-//void load() {												// 파일 열기 함수.
-//	
-//	FILE *fp = fopen("to_do_list.txt", "r");
-//
-//	if (fp == NULL) {
-//		cout << "파일 열기 실패." << endl;					// 예외 처리.
-//		return;
-//	}
-//
-//	char sen[BUFFER_SIZE];
-//	while (fgets(sen, BUFFER_SIZE, fp)) {
-//		
-//
-//		cout << sen;
-//
-//		if (feof(fp))
-//			break;
-//	}
-//	cout << endl;
-//	
-//	fclose(fp);
-//
-//}
-//
 //void save() {
 //	
 //	FILE* fp = fopen("to_do_list.txt", "r");
