@@ -7,16 +7,14 @@ using namespace std;
 void read_command();
 void cate_menu();
 void todo_menu();
-
 void menu();
 
 int main() {
+		
+	init_setting();										// 초기 설정 ( 1.미분류		2.중요 category 생성).
 
-	init_setting();
-
-	read_command();
+	read_command();										// 명령을 실행하기 위한 함수.
 	
-
 }
 
 void read_command() {
@@ -29,34 +27,31 @@ void read_command() {
 		cout << "$: ";
 		cin >> command;
 
-		if (command == 1) {								// 나중엔 중요한 일 보기로 바꿀 것임.
+		if (command == 1) {								// 중요함 카테고리(항상 2번 category)를 출력.
 			show_important();
 		}
-		else if (command == 2) {
+		else if (command == 2) {						// category 메뉴를 실행.
 			cate_menu();
 		}
-		else if (command == 3) {
+		else if (command == 3) {						// todo 메뉴를 실행.
 			todo_menu();
 		}
-		else if (command == 4) {
+		else if (command == 4) {						// 모든 category와 todo를 출력.
 			show_all();
 		}
-		else if (command == 5) {
+		else if (command == 5) {						// to_do_list.txt에 저장된 카테고리와 할 일들을 입력.
 			load();
 		}
-		else if (command == 6) {
+		else if (command == 6) {						// to_do_list.txt에 콘솔에서 다룬 카테고리와 할 일들을 저장.
 			save();
 		}
-
-		else if (command == 10) {
+		else if (command == 10) {						// 프로그램 종료.
 			return;
 		}
-
 	}
-
 }
 
-void menu() {												 // 4. all list 부분 구현해야 함.
+void menu() {												 
 	cout << "\t\tTo_Do_List_Program" << endl;
 	cout << "==========================================================" << endl;
 	cout << "\t\t명령어 목록: \n\t\t1. 중요한 일 보기	\n\t\t2. category\n\t\t3. todo\n\t\t4. all list\n\t\t5. 파일 불러오기\n\t\t6. 파일 저장하기\n\t\t10. exit\n" << endl;
@@ -64,7 +59,7 @@ void menu() {												 // 4. all list 부분 구현해야 함.
 
 }
 
-void cate_menu() {					// cate_menu 명령창 실행 후, 선택한 명령으로 실행 후 초기화면으로 돌아감.
+void cate_menu() {										// 선택한 명령 실행 후 cate_menu 초기화면으로 돌아감.
 
 	while (1) {
 		cout << "\t\tCategory Menu" << endl;
@@ -87,7 +82,7 @@ void cate_menu() {					// cate_menu 명령창 실행 후, 선택한 명령으로 실행 후 초기
 		else if (category_command == 3) {				// 카테고리 제거 함수.
 			remove_category();
 		}
-		else if (category_command == 4) {
+		else if (category_command == 4) {				// 현재 category들의 이름만 출력.
 			show_cate_list();
 		}
 		else if (category_command == 5) {
@@ -102,8 +97,8 @@ void cate_menu() {					// cate_menu 명령창 실행 후, 선택한 명령으로 실행 후 초기
 	}
 }
 
-void todo_menu() {						// todo 명령창 실행 후, 선택한 명령으로 실행 후 todo_menu화면으로 돌아감.
-										// 중요함으로 전환 추가할까??
+void todo_menu() {										// 선택한 명령 실행 후 todo_menu화면으로 돌아감.
+									
 	while (1) {
 		cout << "\t\tTo_Do_Menu" << endl;
 		cout << "==========================================================" << endl;
@@ -116,19 +111,19 @@ void todo_menu() {						// todo 명령창 실행 후, 선택한 명령으로 실행 후 todo_men
 		int todo_command;
 		cin >> todo_command;
 
-		if (todo_command == 1) {
+		if (todo_command == 1) {						// 할 일 생성.
 			create_todo();
 		}
-		else if (todo_command == 2) {
+		else if (todo_command == 2) {					// 할 일 찾기. (찾을 할 일이 있는 카테고리를 선택 -> 카테고리의 할 일들의 목록 보여 줌.)
 			search_todo();
 		}
-		else if (todo_command == 3) {
+		else if (todo_command == 3) {					// 할 일 제거.
 			remove_todo();
 		}
-		else if (todo_command == 4) {
+		else if (todo_command == 4) {					// 중요한 할 일들 출력. (메인 메뉴의 중요함 카테고리 출력과 동일한 기능.)
 			show_important();
 		}
-		else if (todo_command == 5) {
+		else if (todo_command == 5) {					
 			cout << "\t초기 메뉴로 돌아갑니다." << endl << endl;
 			break;
 		}

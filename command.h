@@ -6,14 +6,20 @@
 #include <string>
 using namespace std;
 
-
+// 초기 설정 및 메인 메뉴에서 보여지는 함수.
 void init_setting();
 void show_important();
 void show_all();
 
-// 파일 입출력
+// 파일 입출력 관련.
+void load();
+void save();
 void load_add_todo(string imsi_todo);
 void split(string& imsi_todo, string& s);
+void load_add_todo(string imsi_todo);
+void split(string& imsi_todo, string& s);
+string save_to_todo(todo* p, category* ptr_cate);
+void link(string& s, string part);
 
 /*void cate_menu();*/											 // category 관련 함수들
 void create_category();
@@ -25,16 +31,6 @@ void show_cate_list();
 category* search_cate(int n);									// 오버로딩( 이름과 번호 )
 category* search_cate(string name);					
 bool cate_name_overlap(string imsi_name);
-
-// 파일 입출력
-void load_add_todo(string imsi_todo);
-void split(string& imsi_todo, string& s);
-
-void load();
-void save();
-string save_to_todo(todo* p, category *ptr_cate);
-void link(string& s, string part);
-
 
 /*void todo_menu();*/											// todo 관련 함수들
 void create_todo();								

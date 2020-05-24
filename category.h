@@ -6,7 +6,6 @@
 #include <string>
 using namespace std;
 
-
 class category {
 
 	int index;									// 카테고리들의 일련번호 ( 0: 미분류, 1: 중요로 미리 생성)
@@ -37,9 +36,6 @@ public:
 	
 	static int cate_num;								// 카테고리 객체들이 공유할 일련번호 변수.
 };
-
-
-// 이 구조체를 command로 옮겨야 할까??
 
 
 typedef struct cate {					// 카테고리들의 연결리스트의 첫 부분과 마지막 부분, 카테고리의 개수를 저장하기 위한 구조체 선언.

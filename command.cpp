@@ -8,34 +8,30 @@
 using namespace std;
 
 
-Cate_Struct cate_struct;						// 카테고리 연결리스트의 head, tail, 카테고리의 수를 저장하기 위한 구조체 변수 선언.	
+Cate_Struct cate_struct;					// 카테고리 연결리스트의 head, tail, 카테고리의 수를 저장하기 위한 구조체 변수 선언.	
 
-category* unclassified;						// 0. 미분류 카테고리 선언.
-category* important;						// 1. 중요함 카테고리 선언.
+category* unclassified;						// 1. 미분류 카테고리 선언.
+category* important;						// 2. 중요함 카테고리 선언.
 
-void init_setting() {
+void init_setting() {						// 초기 설정 ( 구조체 초기화 및  1.미분류		2.중요 category 생성).
 
-	cate_struct.size = 0;										// 
+	cate_struct.size = 0;									// cate_struct 구조체 초기화.
 	cate_struct.cate_head = NULL;
 	cate_struct.cate_tail = NULL;
 
-	unclassified = unclassified->create_cate("미분류");		// 0. 미분류 카테고리 생성.
+	unclassified = unclassified->create_cate("미분류");		// 1. 미분류 카테고리 생성.
 	add_to_cate(unclassified);
 
-	important = important->create_cate("중요");				// 1. 중요함 카테고리 생성.
+	important = important->create_cate("중요");				// 2. 중요함 카테고리 생성.
 	add_to_cate(important);
 	
 	cout << "초기 설정: " << endl;
 	cout << "1번 카테고리를 \"미분류\" 2번 카테고리를 \"중요\"로 설정" << endl << endl;
 }
 
-void save() {
-	// 파일 오픈.
-	// 카테고리 이름 출력
-	// 할 일들 출력.
+void save() {																	// 파일 저장 기능.
 
 	ofstream fp("to_do_list.txt");
-	// fp.open("to_do_list.txt");		// 위에꺼 실행 안되면.
 
 	if (!(fp.is_open())) {							// 예외 처리.
 		cout << "not found file. " << endl;
@@ -51,14 +47,14 @@ void save() {
 
 	while (ptr_cate != NULL) {
 		string print_cate = "@";												// 파일에 카테고리 출력.
-		print_cate.append(ptr_cate->get_cate_name());
+		print_cate.append(ptr_cate->get_cate_name());							// "@카테고리이름" 출력
 		print_cate.append("\n");
 		fp.write( print_cate.c_str(), print_cate.size());
 
 		todo* ptr_todo = ptr_cate->get_first_todo();
-		while (ptr_todo != NULL) {
-			string print_todo = save_to_todo(ptr_todo, ptr_cate);				// 파일에 카테고리의 할 일 출력.
-			fp.write(print_todo.c_str(), print_todo.size());
+		while (ptr_todo != NULL) {												// 파일에 카테고리의 할 일 출력.
+			string print_todo = save_to_todo(ptr_todo, ptr_cate);				// 출력할 문장 생성 함수.
+			fp.write(print_todo.c_str(), print_todo.size());					// "#카테고리명#제목#월#일#세부사항#" 으로 출력.
 
 			ptr_todo = ptr_todo->get_next_todo();
 		}
@@ -69,9 +65,9 @@ void save() {
 	fp.close();
 }
 
-string save_to_todo(todo* p, category* ptr_cate) {
+string save_to_todo(todo* p, category* ptr_cate) {								// save()에서 출력할 문장 생성 함수.
 	
-	string print_todo = "#";			// 반환할 문자열.
+	string print_todo = "#";							// 구분자로 쓸 문자
 
 	string cate, title, time, month, date, detail;
 
@@ -84,7 +80,7 @@ string save_to_todo(todo* p, category* ptr_cate) {
 	date = time.substr(2, 4);
 
 	// 연결하는 부분 함수 구현.
-	link(print_todo, cate);
+	link(print_todo, cate);								// 문장 연결 함수.
 	link(print_todo, title);
 	link(print_todo, month);
 	link(print_todo, date);
@@ -92,17 +88,16 @@ string save_to_todo(todo* p, category* ptr_cate) {
 
 	print_todo.append("\n");
 
-	return print_todo;
+	return print_todo;									// "#카테고리명#제목#월#일#세부사항#" 으로 수정한 문자열 반환.
 }
 
-void link(string& s, string part) {
-
+void link(string& s, string part) {								// save()를 위한 문자열 편집 함수.
+																// 현재 문자열 + 추가할 문자열 + #
 	s.append(part);
 	s.append("#");
-
 }
 
-void load() {														// 파일 열기 함수.
+void load() {																				// 파일 불러오기 함수.
 	
 	ifstream fp("to_do_list.txt");						// 읽기용 객체 생성.
 
@@ -112,29 +107,27 @@ void load() {														// 파일 열기 함수.
 	}
 
 	string s;
-	/*char buf[BUFFER_SIZE];*/
 
 	while (fp) {
 		getline(fp, s);
 
-		if (s[0] == '@') {			// 카테고리
+		if (s[0] == '@') {									// 카테고리 구분자.
 
-			string imsi_name = s.substr(1, s.size());
+			string imsi_name = s.substr(1, s.size());			// '@' 문자 제거.
 
-			if (!(cate_name_overlap(imsi_name))) {
+			if (!(cate_name_overlap(imsi_name))) {				// 같은 이름의 카테고리 있는지 중복 검사. (있으면 건너뛰기).
 				continue;
 			}
 			
 			category* ptr_cate = NULL;
-			ptr_cate = ptr_cate->create_cate(imsi_name);					// 카테고리 객체 하나 생성.
+			ptr_cate = ptr_cate->create_cate(imsi_name);		// 카테고리 객체 생성 후 연결리스트에 추가.
 			
 			add_to_cate(ptr_cate);
 		}
-		else if (s[0] == '#') {		// 할 일.
-			// 구분자는 '#'
-			// string 구분하는 함수 찾아보기.
-			string imsi_todo = s.substr(1, s.size());
-			load_add_todo(imsi_todo);
+		else if (s[0] == '#') {								// 할 일 구분자.
+
+			string imsi_todo = s.substr(1, s.size());			// '#' 문자 제거.
+			load_add_todo(imsi_todo);							// 읽어온 할 일 추가 함수.
 		}
 
 	}
@@ -142,7 +135,7 @@ void load() {														// 파일 열기 함수.
 	fp.close();
 }
 
-void load_add_todo(string imsi_todo) {							
+void load_add_todo(string imsi_todo) {									// load()에서 읽어온 할 일 추가 함수.
 	
 	string cate, title, month, date, detail;
 
@@ -155,10 +148,7 @@ void load_add_todo(string imsi_todo) {
 	string time = month;
 	time.append(date);
 
-	// cate 고리를 찾고
-	// todo 객체를 만들어서 연결.
-	
-	category* ptr_cate = search_cate(cate);			
+	category* ptr_cate = search_cate(cate);							// 읽어온 문장의 category를 찾음.
 
 	if (ptr_cate == NULL) {											// 예외처리 null
 		cout << "\t메모장에 잘못 적으셨습니다." << endl;
@@ -169,18 +159,17 @@ void load_add_todo(string imsi_todo) {
 	ptr_todo = ptr_todo->create_todo(title, time, detail);						// 할일 객체 생성.
 
 	sort_todo_to_cate(ptr_todo, ptr_cate->get_cate_index());
-
 }
 
-void split(string& imsi_todo, string& s) {			// 포인터나 리터럴을 사용해야 할 듯.
+void split(string& imsi_todo, string& s) {										// load()함수에서 할 일 문장에서 필요한 문장을 추출하는 함수.
 
-	int length = imsi_todo.find("#");
+	int length = imsi_todo.find("#");								// 구분자 "#";
 	s = imsi_todo.substr(0, length);
 
 	imsi_todo = imsi_todo.substr(length + 1, imsi_todo.size());
 }
 
-category* search_cate(string name) {
+category* search_cate(string name) {											// 카테고리 이름을 가지고 카테고리를 찾는 함수.
 
 	category* p = cate_struct.cate_head;
 
@@ -199,7 +188,7 @@ category* search_cate(string name) {
 	return NULL;							// 못 찾은 경우. 메모장에 잘못 적혀 있는 것.
 }
 
-void show_important() {
+void show_important() {															// 중요한 일 카테고리(항상 2번 카테고리)를 출력하는 함수.
 
 	cout << "★★★★★★★★★★★★★★★★★★★★★★★" << endl;
 	cout << "\t(항상 2번째 카테고리를 가르킵니다.)" << endl << endl;
@@ -209,15 +198,13 @@ void show_important() {
 	if (p == NULL) {													// 예외 처리.						
 		cout << "\t중요함 카테고리가 없습니다." << endl;
 	}
-
-	/*cout << "\t\t" << p->get_cate_name() << endl;*/
 	
 	show_cate_todos(p);
 
 	cout << "★★★★★★★★★★★★★★★★★★★★★★★" << endl << endl << endl;
 }
 
-void show_all() {
+void show_all() {																// 모든 카테고리와 할 일들을 출력하는 함수.
 	category* p = cate_struct.cate_tail;
 
 	if (p == NULL) {										// 예외 처리
@@ -230,22 +217,16 @@ void show_all() {
 	}
 }
 
+void search_todo() {															// 할 일을 찾는 함수.
+	// 카테고리들의 목록을 출력.
+	// 카테고리의 번호를 입력하면 그 카테고의 할 일들의 목록을 번호와 함께 출력.
 
-void search_todo() {
-	// 카테고리들의 목록을 띄어주고 어디에 있는지 물어본다.
-	// 카테고리의 번호를 입력하면 그 카테고의 할 일들의 목록을 번호와 함께 띄어준다.
-	// 번호를 입력하면 int num을 이용해서 그냥 for문 돌려 찾아 리턴해 준다.
-
-	// 근데 여기서 만약 할 일이 하나도 없거나 카테고리들도 아무것도 없다면 경고메시지 출력 후 초기화면으로 가는게 좋을 듯.
-
-	category* p = select_cate();			// 요걸로 카테고리 목록 출력 및 필요한 카테고리의 주소 받음.
+	category* p = select_cate();			
 
 	show_cate_todos(p);
-
 }
 
-todo* remove_search_todo(category* p) {
-	//category* p = select_cate();			// 요걸로 카테고리 목록 출력 및 필요한 카테고리의 주소 받음.
+todo* remove_search_todo(category* p) {											// 지우기 위한 할 일을 찾는 함수.
 
 	show_cate_todos(p);
 
@@ -262,6 +243,7 @@ todo* remove_search_todo(category* p) {
 		}
 		break;
 	}
+
 	// todo들을 n만큼 순회하는 데 만약 todo 포인터가 null이 되면 못 찾고 종료.
 	todo* ptr_todo = p->get_first_todo();
 	int i = 1;
@@ -278,18 +260,18 @@ todo* remove_search_todo(category* p) {
 	return ptr_todo;
 }
 
-void remove_todo() {
+void remove_todo() {															// 할 일을 지우는 함수.
 
-	category* ptr_cate = select_cate();					// 요걸로 카테고리 목록 출력 및 필요한 카테고리의 주소 받음.
+	category* ptr_cate = select_cate();					// 카테고리 목록 출력 및 필요한 카테고리의 주소 받음.
 
 	if (ptr_cate == NULL) {
 		cout << "\t제거 실패!!" << endl << endl;		// 예외 처리.
 		return;
 	}
 
-	todo* p = remove_search_todo(ptr_cate);				// 요걸 통해서 지울 todo를 찾음.
+	todo* p = remove_search_todo(ptr_cate);				// 지울 todo를 찾아 그 주소를 반환.
 
-	if (p == NULL) {							// 예외 처리.
+	if (p == NULL) {									// 예외 처리.
 		cout << "\t제거 실패!!" << endl << endl;
 		return;
 	}
@@ -298,7 +280,9 @@ void remove_todo() {
 	todo* p_prev = p->get_prev_todo();
 	
 	// 지우는 경우
+	// 연결리스트의
 	// 1. 유일한 경우.		2. 맨 앞인 경우.		3. 맨 뒤인 경우.		4. 중간에 있는 경우.
+
 	if (p_next == NULL && p_prev == NULL) {								// 1. 유일한 경우.
 		ptr_cate->set_first_todo(NULL);
 	}
@@ -319,18 +303,18 @@ void remove_todo() {
 	cout << "\t" << title << " 제거 성공" << endl;
 }
 
-string set_todo_title() {
+string set_todo_title() {														// 할 일의 제목을 입력받는 함수.(빈 칸은 제외).
 
 	string title;
 
 	// 할 일 입력.
-	int first = 0;									// 처음만 입력버퍼를 실행하기 위한 변수.
+	int first = 0;									// 처음만 입력버퍼 지우기를 실행하기 위한 변수.
 	while (1) {
 
 		cout << "	할 일을 적어주세요.(첫 글자 공백x): ";
 
 		if (first == 0) {
-			getchar();
+			getchar();								// 입력버퍼 제거.
 			first++;
 		}
 		getline(cin, title);
@@ -339,20 +323,17 @@ string set_todo_title() {
 			cout << "\t입력이 없습니다.\n" << endl;
 			continue;
 		}
-
 		break;
 	}
-
-	return title;
-
+	return title;									// 할 일의 제목 반환.
 }
 
-string set_todo_time() {
+string set_todo_time() {														// 할 일의 시간을 입력받는 함수.
 
-	// 월과 일을 따로 받아서 검사하고 string time 배열에 append로 합치자.
+	// 월과 일을 따로 받아서 검사.
+	// 후에 string.append로 합쳐서 time에 입력.
 
 	string time;
-	// 시간 입력 
 	while (1) {
 
 		bool check = true;											// 제대로 된 month와 date의 값을 입력했는지 확인할 변수.
@@ -405,21 +386,21 @@ string set_todo_time() {
 		
 		time = month;
 		time.append(date);		
-		return time;
+		return time;																// 마감 시간 반환.
 	}
 }
 
-string set_todo_detail() {
+string set_todo_detail() {																	// 세부사항 입력 함수.
 	string detail;
 	cout << "\t자세한 설명을 적어주세요.:";
 
-	getchar();										// 입력 버피 지워주자.
+	getchar();										// 입력 버피 지우기.
 	getline(cin, detail);
 
-	return detail;
+	return detail;									// 세부사항 반환.
 }
 
-void create_todo() {
+void create_todo() {																		// 할 일 생성 함수.
 	
 	cout << "\t1. 할 일 추가." << endl;
 
@@ -428,13 +409,16 @@ void create_todo() {
 	string detail = set_todo_detail();
 
 	todo* ptr_todo = NULL;
-	ptr_todo = ptr_todo->create_todo(title, time, detail);
+	ptr_todo = ptr_todo->create_todo(title, time, detail);				// 할 일 생성.
 
 	if (ptr_todo == NULL) {												// 예외처리.
 		cout << "\t할 일 추가 실패!!" << endl << endl;
 	}
 
-	show_cate_list();								// 현재 카테고리의 목록을 보여준다.
+	// 현재 카테고리들의 목록을 출력.
+	// 할 일이 들어갈 카테고리를 선택.
+
+	show_cate_list();										// 현재 카테고리의 목록을 출력.
 	
 	int n;
 	while (1) {
@@ -452,42 +436,36 @@ void create_todo() {
 		break;
 	}
 
-	sort_todo_to_cate(ptr_todo, n);							// 생성된 todo 객체와 카테고리의 번호를 매개변수로 카테고리에 정렬되어 들어간다.
+	sort_todo_to_cate(ptr_todo, n);							// 생성된 todo 객체와 카테고리의 번호를 매개변수로 카테고리에 정렬되어 입력.
 }
 
-void sort_todo_to_cate(todo* ptr_todo, int n) {
+void sort_todo_to_cate(todo* ptr_todo, int n) {								// 생성된 todo 객체를 카테고리에 입력하는 함수.
 
 	category* ptr_cate = search_cate(n);							// 카테고리를 찾아줌. 이때 n은 검사해서 들어왔으므로 따로 검사 x.
 
-	// 이제 이 할 일을 카테고리에 연결시켜줘야 함.
-	// 날짜 순서대로 정렬할 건데.
+	// 할 일을 카테고리에 연결
+	// 날짜 순서대로 정렬
+	// 할 일의 연결리스트가 
 	// 1. 비었을 때,	2. 맨 앞에 올 때,	3. 맨 뒤에 올 때,	중간에 삽입될 때.
 
+	// 들어갈 위치를 찾기 위한 변수.
 	todo* p = ptr_cate->get_first_todo();
 	todo* q = NULL;
-	// 들어갈 위치를 먼저 찾아줘야 겠지..?
 	
-
-
-	while (p != NULL) {
-		// 마감일을 비교해서
-
-		if (ptr_todo->get_due_data() < p->get_due_data()) {					// 문자열인데 string이라 비교 되겠지..?
+	while (p != NULL) {												// 연결리스트 상의 위치 찾는 과정.
+																	// 마감일을 비교
+		if (ptr_todo->get_due_data() < p->get_due_data()) {					
 			break;
 		}
 		q = p;
 		p = p->get_next_todo();
 	}
 
-
 	if (p == NULL && ptr_cate->get_first_todo() == NULL) {				// 1. 비었을 때.
 		ptr_cate->set_first_todo(ptr_todo);
 	}
 	else if (p == ptr_cate->get_first_todo()) {							// 2. 처음에 들어가야 함.
 		
-		// p의 이전 주소가 ptr_todo
-		// ptr_todo의 다음 주소가 p
-		// first_todo가 ptr_todo
 		p->set_prev_todo(ptr_todo);
 		ptr_todo->set_next_todo(p);
 		ptr_cate->set_first_todo(ptr_todo);
@@ -504,13 +482,7 @@ void sort_todo_to_cate(todo* ptr_todo, int n) {
 	}
 }
 
-
-
-// 수정 덜 끝남.						// 카테고리들 
-
-
-
-void remove_category() {											// 카테고리 메뉴 3번 카테고리 지우기.
+void remove_category() {												// 카테고리 지우기.
 
 	show_cate_list();
 
@@ -518,9 +490,9 @@ void remove_category() {											// 카테고리 메뉴 3번 카테고리 지우기.
 	cout << "\t지우고 싶은 카테고리의 번호를 입력: ";
 	cin >> n;
 
-	// 카테고리의 연결리스트들을 순회하며 입력된 번호의 카테고리를 찾아 그 주소를 받는다.
-	// 그 카테고리와 연결된 todo들을 먼저 delete 해준다.
-	// 그 후 다 지워진 걸 확인한 다음. category를 지우고 연결리스트들을 다시 연결해주고 그 이후의 연결리스트들의 번호를 1씩 감소시켜준다.
+	// 카테고리의 연결리스트들을 순회하며 입력된 번호의 카테고리를 찾아 그 주소를 반환받음.
+	// 그 카테고리와 연결된 todo들을 먼저 delete.
+	// 그 후 다 지워진 걸 확인한 다음. category를 삭제. 그 이후의 연결리스트들의 번호를 1씩 감소시켜준다.
 
 	category* ptr_cate = search_cate(n);
 
@@ -539,38 +511,34 @@ void remove_category() {											// 카테고리 메뉴 3번 카테고리 지우기.
 		ptr_todo = ptr_todo->get_next_todo();	
 		delete(q);
 	}
-	// 왜 하나 삭제하고 그냥 끝나버릴까??
-	// ptr_todo는 분명 다음 것을 가르키고 잇었는데....
-
 
 	// cate delete 하는데 
 	// 카테고리 연결리스트가
 	// 1. 비었다.		2.  유일한 카테고리.		3. 맨 앞(근데 0,1은 안 지울 것임.)	4. 맨 뒤		5. 중간		
 	
-	if (cate_struct.cate_head == NULL && cate_struct.size == 0) {			// 빈 경우.
+	if (cate_struct.cate_head == NULL && cate_struct.size == 0) {								// 1. 빈 경우.
 
 		cout << "\t카테고리가 이미 비었습니다." << endl << endl;
 		return;
 	}
-	else if (ptr_cate == cate_struct.cate_head && ptr_cate == cate_struct.cate_tail) {			// 유일한 1개
+	else if (ptr_cate == cate_struct.cate_head && ptr_cate == cate_struct.cate_tail) {			// 2. 유일한 1개
 
 		cate_struct.cate_head = NULL;
 		cate_struct.cate_tail = NULL;
 	}
-	else if (ptr_cate == cate_struct.cate_head) {							// 처음
-		// 다음 ptr_cate의 다음 카테고리의 이전 주소를 NULL로 초기화.		cate_head가 다음 카테고리를 가르키개.
+	else if (ptr_cate == cate_struct.cate_head) {												// 3. 처음
 		
 		category* q = ptr_cate->get_next_cate();
 		q->set_prev_cate(NULL);
 		cate_struct.cate_head = q;
 	}
-	else if (ptr_cate == cate_struct.cate_tail) {							// 마지막
+	else if (ptr_cate == cate_struct.cate_tail) {												// 4. 마지막
 		
 		category* q = ptr_cate->get_prev_cate();
 		q->set_next_cate(NULL);
 		cate_struct.cate_tail = q;
 	}
-	else {																	// 중간
+	else {																						// 5. 중간
 
 		category* next_p = ptr_cate->get_next_cate();	
 		category* prev_p = ptr_cate->get_prev_cate();
@@ -582,7 +550,7 @@ void remove_category() {											// 카테고리 메뉴 3번 카테고리 지우기.
 	// 지울 카테고리의 이전 카테고리들의 index를 1씩 감소시켜 준다. ( 늦게 생성될 수록 index 번호가 높기 때문에.)
 	category* prev_p = ptr_cate->get_prev_cate();
 
-	while (prev_p != NULL) {				// 중간이거나 맨 앞일 때만 실행.
+	while (prev_p != NULL) {										// 중간이거나 맨 앞일 때만 실행. (지운 카테고리의 다음 카테고리들의 번호(index) 1씩 감소.
 
 		prev_p->increase_index();									// 카테고리들의 자체 index를 1씩 감소 시켜주는 함수.
 		prev_p = prev_p->get_prev_cate();
@@ -597,14 +565,11 @@ void remove_category() {											// 카테고리 메뉴 3번 카테고리 지우기.
 }
 
 
-void show_category() {							// 카테고리 메뉴 2번 카테고리 이름과 그에 연결된 todo들 보기.			
-												// 나중엔 특정 한 카테고리 검색하고 그 카테고리의 할 일들 쭉 나열하는 것으로 바꿀 것.
+void show_category() {												// 카테고리 이름과 그에 연결된 todo들 보기.			
 
 	// 카테고리 목록의 이름을 먼저 보여준다.
 	// 그 후에 카테고리의 번호를 입력하게 한다.
-
-	// 카테고리의 연결리스트들을 순회하며 입력된 번호의 카테고리를 찾는다. (함수로 구현해야 함.)
-
+	// 카테고리의 연결리스트들을 순회하며 입력된 번호의 카테고리를 찾는다.
 	// 그러면 카테고리의 이름과 그와 연결된 todo들을 보여준다.
 
 	category* p = select_cate();
@@ -613,7 +578,7 @@ void show_category() {							// 카테고리 메뉴 2번 카테고리 이름과 그에 연결된 to
 
 }
 
-category* select_cate() {
+category* select_cate() {											// 카테고리의 index로 카테고리를 찾는 함수.
 
 	show_cate_list();
 
@@ -632,26 +597,25 @@ category* select_cate() {
 	return p;
 }
 
-void show_cate_todos(category* ptr_cate) {
+void show_cate_todos(category* ptr_cate) {											// 카테고리에 연결된 할 일들을 출력해주는 함수.
 
-	if (ptr_cate== NULL) {
+	if (ptr_cate== NULL) {															// 예외 처리.
 		return;
 	}
 
 	todo* ptr_todo = ptr_cate->get_first_todo();
-
-	// todo들의 목록 출력.											// todo 관련 수정할 때 get_todo 할 함수 추가.
+											
 	cout << "\t" << ptr_cate->get_cate_name() << endl;
 
 	cout << "==========================================================" << endl;
 	
-	if (ptr_todo == NULL)
+	if (ptr_todo == NULL)															// 예외 처리.
 		cout << "\t카테고리의 할 일이 비었습니다." << endl << endl;
 
-	int i = 1;					// 할 일들의 번호를 옆에 출력.(나중에 검색하기 위해.)
+	int i = 1;																		// 할 일들의 번호를 옆에 출력.(나중에 검색하기 위해.)
 
-	while (ptr_todo != NULL) {
-		cout << "\t" << i++ << ". 제목 : " << ptr_todo->get_title() << endl;						// 나중에 마감일자와 세부사항도 볼수 있게.
+	while (ptr_todo != NULL) {														// todo들의 목록 출력.
+		cout << "\t" << i++ << ". 제목 : " << ptr_todo->get_title() << endl;				
 		cout << "\t  마감 일자: " << ptr_todo->get_due_data() << endl;
 		cout << "\t  설명: " << ptr_todo->get_detail() << endl;
 
@@ -662,7 +626,7 @@ void show_cate_todos(category* ptr_cate) {
 
 }
 
-category* search_cate(int n) {
+category* search_cate(int n) {														// 카테고리의 index로 카테고리를 찾는 함수.
 
 	category* p = cate_struct.cate_head;
 
@@ -674,10 +638,10 @@ category* search_cate(int n) {
 		p = p->get_next_cate();
 	}
 	
-	return NULL;						// 못 찾았으면 NULL 값 반환.
+	return NULL;												// 못 찾았으면 NULL 값 반환.
 }
 
-void show_cate_list() {											// 카테고리 메뉴 6번 카테고리 목록 보기.
+void show_cate_list() {																// 카테고리 목록 보기.
 
 	category* p = cate_struct.cate_tail;						// 나중에 생성된 것부터 보기 위해 tail을 시작점으로.
 	
@@ -692,18 +656,17 @@ void show_cate_list() {											// 카테고리 메뉴 6번 카테고리 목록 보기.
 	cout << endl;
 }
 
-void create_category() {										// 카테고리 생성 함수.
+void create_category() {															// 카테고리 생성 함수.
 
 	string name;
 
-	while (1) {													// 이 안에서 이름 중복 검사 부분 추가.
+	while (1) {													// 이름 중복 검사 부분.
 
 		cout << "생성할 카테고리의 이름을 입력해주세요.: ";
 		getchar();												// 입력 버퍼 제거.
 		getline(cin, name);
 
-		if (!(cate_name_overlap(name))) {
-			// 중복된 게 있으면 생성 취고 해야 함.
+		if (!(cate_name_overlap(name))) {						// 이름 중복 검사 해주는 함수 호출.
 			cout << "\t중복된 카테고리가 존재." << endl;
 			return;
 		}
@@ -711,12 +674,12 @@ void create_category() {										// 카테고리 생성 함수.
 	}
 
 	category* ptr_cate = NULL;
-	ptr_cate = ptr_cate->create_cate(name);					// 카테고리 객체 하나 생성.
+	ptr_cate = ptr_cate->create_cate(name);						// 카테고리 객체 생성.
 
 	add_to_cate(ptr_cate);	
 }
 
-bool cate_name_overlap(string imsi_name) {
+bool cate_name_overlap(string imsi_name) {												// 카테고리 이름 중복 검사 함수.
 
 	category* p = cate_struct.cate_head;
 
@@ -736,108 +699,23 @@ bool cate_name_overlap(string imsi_name) {
 	return true;
 }
 
-void add_to_cate(category* ptr_cate) {				// cate 구조체의 head와 tail에 생성된 category들을 연결시켜주는 함수.
+void add_to_cate(category* ptr_cate) {									// cate 구조체의 head와 tail에 생성된 category들을 연결시켜주는 함수.
 
-	// 생성된 category 객체를 받아서 연결리스트에 추가해야 하는데.
-	// 경우의 수
-	// 1. 빈 리스트(처음 세팅 때 필요).	2. 비지 않은 경우.				//  나중에 빈 리스트인지 검사 하는 함수 구현해서 바꿔줄 것.
+	// 생성된 category 객체를 받아서 연결리스트에 추가할 때. ( 입력 방향이 단방향이다. )
+	// 연결리스트가
+	// 1. 빈 리스트(처음 세팅 때 필요).	2. 빈 연결리스트가 아닌 경우.			
 
-	if (cate_struct.size == 0 && cate_struct.cate_head == NULL) {
+	if (cate_struct.size == 0 && cate_struct.cate_head == NULL) {		// 1. 연결리스트가 빈 경우.
 
 		cate_struct.cate_head = ptr_cate;
 		cate_struct.cate_tail = ptr_cate;
 	}
-	else {
-		// ptr_cate의 다음 주소를 입력하고, 
-		// 그 다음주소는 이전 주소로 ptr_cate를 받는다.
-		// cate_struct.head가 ptr_cate를 가르킨다.
-
+	else {																// 2. 빈 연결리스트가 아닌 경우.
+		
 		ptr_cate->set_next_cate(cate_struct.cate_head);
 		cate_struct.cate_head->set_prev_cate(ptr_cate);
 		cate_struct.cate_head = ptr_cate;
 	}
 
-	cate_struct.size++;
+	cate_struct.size++;								// 카테고리들의 번호와 카테고리 구조체의 사이즈를 키워주기 위해.
 }
-
-
-
-//void menu() {												 // 4. all list 부분 구현해야 함.
-//	cout << "\t\tTo_Do_List_Program" << endl;
-//	cout << "==========================================================" << endl;
-//	cout << "\t\t명령어 목록: \n\t\t1. 중요한 일 보기	\n\t\t2. category\n\t\t3. todo\n\t\t4. all list\n\t\t10. exit\n" << endl;
-//	cout << "==========================================================" << endl;
-//
-//}
-
-// 수정 전.															==========================
-
-
-//void add_todo_to_cate() {
-//	char ch;
-//	while (1) {
-//		cout << "추가한 할 일을 카테고리에 분류하시겠습니다?(y/n):";
-//		cin >> ch;
-//
-//		if (ch == 'n') {
-//			cout << "카테고리가 아닌 todo들 자체의 연결리스트에 분류했습니다." << endl;
-//			break;
-//		}
-//		else if (ch == 'y') {
-//			// 카테고리가 비었는지부터 확인.
-//			// 비었으면 todo들 자체 알리기.
-//			// 카테고리 있으면 카테고리명 입력받고 찾아서 입력하기.
-//			bool empty = category::head_cate->is_empty_cate();				// 카테고리가 비었는지 확인.
-//			if (empty == true) {
-//				cout << "카테고리가 비었습니다. todo들 자체의 연결리스트에 분류했습니다." << endl;
-//				break;
-//			}
-//			
-//			while (1) {											// 제대로 된 카테고리들의 이름을 입력할 때까지 반복.
-//				show_category();						// 현재 카테고리들의 이름을 보여줌.
-//
-//				string cate_name;
-//				cout << "분류할 카테고리의 이름을 입력하세요.:";
-//				cin >> cate_name;
-//
-//				category* ptr_cate = search_cate(cate_name);
-//
-//				if (ptr_cate == NULL) {
-//					cout << "그런 이름의 카테고리가 없습니다." << endl;
-//					continue;
-//				}
-//
-//				ptr_cate->add_todo_cate(todo::imsi_todo);					// 찾은 카테고리를 통해 todo를 연결.
-//				break;
-//			}
-//
-//		}
-//		else {
-//			cout << "잘못 입력했습니다. 다시 입력하세요. " << endl;
-//			continue;
-//		}
-//		break;
-//	}
-//}
-
-
-//void save() {
-//	
-//	FILE* fp = fopen("to_do_list.txt", "r");
-//	FILE* fp2 = fopen("copy.txt", "w");
-//
-//	char sen[BUFFER_SIZE];
-//	while (fgets(sen, BUFFER_SIZE, fp)) {
-//		cout << sen;
-//
-//		fprintf(fp2, "%s", sen);
-//
-//		if (feof(fp))
-//			break;
-//	}
-//	cout << endl;
-//
-//	
-//	fclose(fp);
-//	fclose(fp2);
-//}
