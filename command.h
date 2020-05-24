@@ -30,6 +30,10 @@ bool cate_name_overlap(string imsi_name);
 void load_add_todo(string imsi_todo);
 void split(string& imsi_todo, string& s);
 
+void load();
+void save();
+string save_to_todo(todo* p, category *ptr_cate);
+void link(string& s, string part);
 
 
 /*void todo_menu();*/											// todo 관련 함수들
@@ -42,10 +46,6 @@ void show_cate_todos(category* ptr_cate);
 todo* remove_search_todo(category* p);
 void search_todo();
 void remove_todo();
-
-
-void load();
-//void save();
 
 
 #endif

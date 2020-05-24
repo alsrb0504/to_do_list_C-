@@ -44,9 +44,9 @@ void read_command() {
 		else if (command == 5) {
 			load();
 		}
-		//else if (command == "save") {
-		//	save();
-		//}
+		else if (command == 6) {
+			save();
+		}
 
 		else if (command == 10) {
 			return;
@@ -59,7 +59,7 @@ void read_command() {
 void menu() {												 // 4. all list 부분 구현해야 함.
 	cout << "\t\tTo_Do_List_Program" << endl;
 	cout << "==========================================================" << endl;
-	cout << "\t\t명령어 목록: \n\t\t1. 중요한 일 보기	\n\t\t2. category\n\t\t3. todo\n\t\t4. all list\n\t\t5. 파일 불러오기\n\t\t10. exit\n" << endl;
+	cout << "\t\t명령어 목록: \n\t\t1. 중요한 일 보기	\n\t\t2. category\n\t\t3. todo\n\t\t4. all list\n\t\t5. 파일 불러오기\n\t\t6. 파일 저장하기\n\t\t10. exit\n" << endl;
 	cout << "==========================================================" << endl;
 
 }

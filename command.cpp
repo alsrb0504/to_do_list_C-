@@ -7,7 +7,6 @@
 
 using namespace std;
 
-#define BUFFER_SIZE 1000
 
 Cate_Struct cate_struct;						// 카테고리 연결리스트의 head, tail, 카테고리의 수를 저장하기 위한 구조체 변수 선언.	
 
@@ -30,22 +29,93 @@ void init_setting() {
 	cout << "1번 카테고리를 \"미분류\" 2번 카테고리를 \"중요\"로 설정" << endl << endl;
 }
 
+void save() {
+	// 파일 오픈.
+	// 카테고리 이름 출력
+	// 할 일들 출력.
+
+	ofstream fp("to_do_list.txt");
+	// fp.open("to_do_list.txt");		// 위에꺼 실행 안되면.
+
+	if (!(fp.is_open())) {							// 예외 처리.
+		cout << "not found file. " << endl;
+		return;
+	}
+
+	category* ptr_cate = cate_struct.cate_tail;
+
+	if (ptr_cate == NULL) {
+		cout << "\t카테고리가 없습니다. 저장하기 실패!!" << endl;
+		return;
+	}
+
+	while (ptr_cate != NULL) {
+		string print_cate = "@";												// 파일에 카테고리 출력.
+		print_cate.append(ptr_cate->get_cate_name());
+		print_cate.append("\n");
+		fp.write( print_cate.c_str(), print_cate.size());
+
+		todo* ptr_todo = ptr_cate->get_first_todo();
+		while (ptr_todo != NULL) {
+			string print_todo = save_to_todo(ptr_todo, ptr_cate);				// 파일에 카테고리의 할 일 출력.
+			fp.write(print_todo.c_str(), print_todo.size());
+
+			ptr_todo = ptr_todo->get_next_todo();
+		}
+
+		ptr_cate = ptr_cate->get_prev_cate();
+	}
+	cout << "\t저장오기 성공!!" << endl << endl;
+	fp.close();
+}
+
+string save_to_todo(todo* p, category* ptr_cate) {
+	
+	string print_todo = "#";			// 반환할 문자열.
+
+	string cate, title, time, month, date, detail;
+
+	cate = ptr_cate->get_cate_name();
+	title = p->get_title();
+	time = p->get_due_data();
+	detail = p->get_detail();
+
+	month = time.substr(0, 2);
+	date = time.substr(2, 4);
+
+	// 연결하는 부분 함수 구현.
+	link(print_todo, cate);
+	link(print_todo, title);
+	link(print_todo, month);
+	link(print_todo, date);
+	link(print_todo, detail);
+
+	print_todo.append("\n");
+
+	return print_todo;
+}
+
+void link(string& s, string part) {
+
+	s.append(part);
+	s.append("#");
+
+}
 
 void load() {														// 파일 열기 함수.
 	
-	ifstream in("to_do_list.txt");						// 읽기용 객체 생성.
+	ifstream fp("to_do_list.txt");						// 읽기용 객체 생성.
+
+	if (!(fp.is_open())) {								// 예외 처리.
+		cout << "not found file. " << endl;
+		return;
+	}
 
 	string s;
 	/*char buf[BUFFER_SIZE];*/
 
-	if (!(in.is_open())) {
-		cout << "not found file. " << endl;
-		return;
-	}	
-
-	while (in) {
-		getline(in, s);
-		cout << s << endl;
+	while (fp) {
+		getline(fp, s);
 
 		if (s[0] == '@') {			// 카테고리
 
@@ -68,8 +138,8 @@ void load() {														// 파일 열기 함수.
 		}
 
 	}
-
-	in.close();
+	cout << "\t불러오기 성공!!" << endl << endl;
+	fp.close();
 }
 
 void load_add_todo(string imsi_todo) {							
@@ -84,7 +154,6 @@ void load_add_todo(string imsi_todo) {
 
 	string time = month;
 	time.append(date);
-	cout << time;
 
 	// cate 고리를 찾고
 	// todo 객체를 만들어서 연결.
@@ -630,10 +699,12 @@ void create_category() {										// 카테고리 생성 함수.
 	while (1) {													// 이 안에서 이름 중복 검사 부분 추가.
 
 		cout << "생성할 카테고리의 이름을 입력해주세요.: ";
-		cin >> name;
+		getchar();												// 입력 버퍼 제거.
+		getline(cin, name);
 
 		if (!(cate_name_overlap(name))) {
 			// 중복된 게 있으면 생성 취고 해야 함.
+			cout << "\t중복된 카테고리가 존재." << endl;
 			return;
 		}
 		break;
@@ -657,7 +728,6 @@ bool cate_name_overlap(string imsi_name) {
 	while (p != NULL) {
 
 		if (imsi_name == p->get_cate_name()) {
-			cout << "\t중복된 이름의 카테고리가 있습니다." << endl;
 			return false;
 		}
 		p = p->get_next_cate();
