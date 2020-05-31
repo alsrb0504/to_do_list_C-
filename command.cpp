@@ -300,7 +300,7 @@ void remove_todo() {															// 할 일을 지우는 함수.
 	}
 	string title = p->get_title();
 	delete(p);
-	cout << "\t" << title << " 제거 성공" << endl;
+	cout << "\t" << title << " 제거 성공" << endl << endl;
 }
 
 string set_todo_title() {														// 할 일의 제목을 입력받는 함수.(빈 칸은 제외).
@@ -417,17 +417,22 @@ void create_todo() {																		// 할 일 생성 함수.
 
 	// 현재 카테고리들의 목록을 출력.
 	// 할 일이 들어갈 카테고리를 선택.
-
-	show_cate_list();										// 현재 카테고리의 목록을 출력.
 	
 	int n;
 	while (1) {
 		
+		show_cate_list();										// 현재 카테고리의 목록을 출력.
 		cout << "\t할일을 추가할 카테고리의 번호를 입력해주세요.: ";
 		cin >> n;
 
 		if (cate_struct.size == 0) {
 			cout << "\t카테고리 목록이 비었습니다. 카테고리를 먼저 만들어 주세요." << endl << endl;
+			// 여기에 카테고리를 추가하는 함수를 실행.
+			create_category();
+
+			// 
+
+			continue;
 		}
 		if (n <= 0 || n > cate_struct.size) {
 			cout << "\t잘못 입력!!" << endl;
@@ -437,6 +442,7 @@ void create_todo() {																		// 할 일 생성 함수.
 	}
 
 	sort_todo_to_cate(ptr_todo, n);							// 생성된 todo 객체와 카테고리의 번호를 매개변수로 카테고리에 정렬되어 입력.
+	cout << "\t할 일 추가 성공!!" << endl << endl;
 }
 
 void sort_todo_to_cate(todo* ptr_todo, int n) {								// 생성된 todo 객체를 카테고리에 입력하는 함수.
@@ -558,6 +564,7 @@ void remove_category() {												// 카테고리 지우기.
 
 	string imsi = ptr_cate->get_cate_name();
 
+	category::cate_num--;
 	cate_struct.size--;
 	delete(ptr_cate);
 	cout << "\t" << imsi << " 카테고리 제거 성공" << endl << endl;
@@ -583,7 +590,7 @@ category* select_cate() {											// 카테고리의 index로 카테고리를 찾는 함수.
 	show_cate_list();
 
 	int n;
-	cout << "\t다룰 카테고리의 번호를 입력: ";
+	cout << "다룰 카테고리 번호 입력(없으면 아무 숫자 입력): ";
 	cin >> n;
 
 	category* p = search_cate(n);
@@ -667,7 +674,7 @@ void create_category() {															// 카테고리 생성 함수.
 		getline(cin, name);
 
 		if (!(cate_name_overlap(name))) {						// 이름 중복 검사 해주는 함수 호출.
-			cout << "\t중복된 카테고리가 존재." << endl;
+			cout << "\t중복된 카테고리가 존재." << endl << endl;
 			return;
 		}
 		break;
@@ -677,6 +684,7 @@ void create_category() {															// 카테고리 생성 함수.
 	ptr_cate = ptr_cate->create_cate(name);						// 카테고리 객체 생성.
 
 	add_to_cate(ptr_cate);	
+	cout << "\t" << name << " 카테고리 생성 성공" << endl << endl;
 }
 
 bool cate_name_overlap(string imsi_name) {												// 카테고리 이름 중복 검사 함수.
