@@ -1,5 +1,5 @@
 #include "command.h"
-
+#include "category.h"
 #include <iostream>
 using namespace std;
 
@@ -13,7 +13,8 @@ int main() {
 		
 	init_setting();										// 초기 설정 ( 1.미분류		2.중요 category 생성).
 
-	read_command();										// 명령을 실행하기 위한 함수.	
+	read_command();										// 명령을 실행하기 위한 함수.
+	
 }
 
 void read_command() {
@@ -21,7 +22,8 @@ void read_command() {
 	int command;										// 명령을 실행하기 위한 변수.
 
 	while (1) {
-		menu();
+		menu();											// 초기 메뉴 출력.
+
 		cout << "숫자 입력: ";
 		cout << "$: ";
 		cin >> command;
