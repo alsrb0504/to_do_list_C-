@@ -6,6 +6,9 @@
 #include <string>
 using namespace std;
 
+typedef struct cate Cate_Struct;
+
+
 class category {
 
 	int index;									// 카테고리들의 일련번호 ( 0: 미분류, 1: 중요로 미리 생성)
