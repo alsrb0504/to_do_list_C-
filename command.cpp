@@ -1,390 +1,190 @@
-#define  _CRT_SECURE_NO_WARNINGS
-
 #include "command.h"
 #include <iostream>
-#include <string>
 #include <fstream>
 
 using namespace std;
 
-
-
-category* cate;								// Ä«Å×°í¸® Å¬·¡½º ¾ÈÀÇ ÇÔ¼öµéÀ» »ç¿ëÇÏ±â À§ÇÑ ´õ¹Ì Æ÷ÀÎÅÍ.
-
-category* unclassified;						// 1. ¹ÌºÐ·ù Ä«Å×°í¸® ¼±¾ð.
-category* important;						// 2. Áß¿äÇÔ Ä«Å×°í¸® ¼±¾ð.
-
 void init_setting() {						// ÃÊ±â ¼³Á¤ ( ±¸Á¶Ã¼ ÃÊ±âÈ­ ¹×  1.¹ÌºÐ·ù		2.Áß¿ä category »ý¼º).
 
-	cate_struct.size = 0;									// cate_struct ±¸Á¶Ã¼ ÃÊ±âÈ­.
-	cate_struct.cate_head = NULL;
-	cate_struct.cate_tail = NULL;
+	category* p = NULL;
+	p = p->create_cate("¹ÌºÐ·ù");			// 1¹ø ¹ÌºÐ·ù Ä«Å×°í¸® »ý¼º.
+	p->add_to_cate(p);
 
-	unclassified = unclassified->create_cate("¹ÌºÐ·ù");		// 1. ¹ÌºÐ·ù Ä«Å×°í¸® »ý¼º.
-	add_to_cate(unclassified);
+	p = p->create_cate("Áß¿ä");				// 2¹ø Áß¿ä Ä«Å×°í¸® »ý¼º.
+	p->add_to_cate(p);
 
-	important = important->create_cate("Áß¿ä");				// 2. Áß¿äÇÔ Ä«Å×°í¸® »ý¼º.
-	add_to_cate(important);
-	
 	cout << "ÃÊ±â ¼³Á¤: " << endl;
 	cout << "1¹ø Ä«Å×°í¸®¸¦ \"¹ÌºÐ·ù\" 2¹ø Ä«Å×°í¸®¸¦ \"Áß¿ä\"·Î ¼³Á¤" << endl << endl;
 }
 
 
-
-void show_important() {															// Áß¿äÇÑ ÀÏ Ä«Å×°í¸®(Ç×»ó 2¹ø Ä«Å×°í¸®)¸¦ Ãâ·ÂÇÏ´Â ÇÔ¼ö.
-
-	cout << "¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú" << endl;
-	cout << "\t(Ç×»ó 2¹øÂ° Ä«Å×°í¸®¸¦ °¡¸£Åµ´Ï´Ù.)" << endl << endl;
-		
-	category* p = search_cate(2);
-
-	if (p == NULL) {													// ¿¹¿Ü Ã³¸®.						
-		cout << "\tÁß¿äÇÔ Ä«Å×°í¸®°¡ ¾ø½À´Ï´Ù." << endl;
-	}
-	
-	cate->show_cate_todos(p);
-
-	cout << "¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú" << endl << endl << endl;
-}
-
 void show_all() {																// ¸ðµç Ä«Å×°í¸®¿Í ÇÒ ÀÏµéÀ» Ãâ·ÂÇÏ´Â ÇÔ¼ö.
-	category* p = cate_struct.cate_tail;
+	category* p = p->cate_head;
 
-	if (p == NULL) {										// ¿¹¿Ü Ã³¸®
-		cout << "\tÇÒ ÀÏÀÌ ¾ø½À´Ï´Ù." << endl << endl;
+	if (p == NULL) {															// ¿¹¿Ü Ã³¸® : Ä«Å×°í¸®°¡ ÇÏ³ªµµ ¾ø´Â °æ¿ì.
+		cout << "\tÇÒ ÀÏÀÌ ¾ø½À´Ï´Ù. ÀÏÁ¤À» Ãß°¡ÇØÁÖ¼¼¿ä." << endl << endl;
+		return;
 	}
 
 	while (p != NULL) {
-		cate->show_cate_todos(p);
-		p = p->get_prev_cate();
+		p->show_cate_todos(p);
+
+		p = p->get_next_cate();
 	}
 }
 
-void search_todo() {															// ÇÒ ÀÏÀ» Ã£´Â ÇÔ¼ö.
-	// Ä«Å×°í¸®µéÀÇ ¸ñ·ÏÀ» Ãâ·Â.
-	// Ä«Å×°í¸®ÀÇ ¹øÈ£¸¦ ÀÔ·ÂÇÏ¸é ±× Ä«Å×°íÀÇ ÇÒ ÀÏµéÀÇ ¸ñ·ÏÀ» ¹øÈ£¿Í ÇÔ²² Ãâ·Â.
 
-	category* p = cate->select_cate();
+void show_important() {															// Áß¿ä Ä«Å×°í¸®(Ç×»ó 2¹ø Ä«Å×°í¸®)¸¦ Ãâ·ÂÇÏ´Â ÇÔ¼ö.
+																				// 2¹ø Ä«Å×°í¸®°¡ "Áß¿ä"°¡ ¾Æ´Ï´õ¶óµµ ÇöÀç 2¹ø Ä«Å×°í¸®¸¦ Ãâ·Â.
+	cout << "¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú" << endl;
+	cout << "\t(Ç×»ó 2¹øÂ° Ä«Å×°í¸®¸¦ °¡¸£Åµ´Ï´Ù.)" << endl << endl;
 
-	cate->show_cate_todos(p);
+	category* p = p->cate_head;
+
+	if (p == NULL) {															// ¿¹¿Ü Ã³¸® : Ä«Å×°í¸®°¡ ÇÏ³ªµµ ¾øÀ» °æ¿ì.
+		cout << "ÇöÀç Ä«Å×°í¸®°¡ ¾ø½À´Ï´Ù. Ä«Å×°í¸®¸¦ ¸ÕÀú Ãß°¡ÇØÁÖ¼¼¿ä. " << endl << endl;
+	}
+
+	p = p->get_next_cate();												// 2¹øÂ° Ä«Å×°í¸®ÀÇ ÁÖ¼Ò¸¦ ¹ÞÀ½.
+
+	if (p == NULL) {															// ¿¹¿Ü Ã³¸® : 2¹ø Ä«Å×°í¸®°¡ ¾ø´Â °æ¿ì.					
+		cout << "\tÁß¿äÇÔ Ä«Å×°í¸®°¡ ¾ø½À´Ï´Ù." << endl << endl;
+	}
+
+	p->show_cate_todos(p);
+
+	cout << "¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú¡Ú" << endl << endl << endl;
 }
-
-todo* remove_search_todo(category* p) {											// Áö¿ì±â À§ÇÑ ÇÒ ÀÏÀ» Ã£´Â ÇÔ¼ö.
-
-	cate->show_cate_todos(p);
-
-	// ÀÏ´Ü Ç×»ó ¾ç¼ö¸¸ ÀÔ·Â ¹ÞÀ½.
-	int num;
-	while (true) {
-		cout << "\t¼±ÅÃÇÒ todoÀÇ ¹øÈ£ ÀÔ·Â " << endl;
-		cout << "\t(ºñ¾úÀ¸¸é ¾Æ¹« ¼ýÀÚ ÀÔ·Â) :";
-		cin >> num;
-
-		if (num <= 0) {
-			cout << "\tÀß¸øÀÔ·Â" << endl;
-			continue;
-		}
-		break;
-	}
-
-	// todoµéÀ» n¸¸Å­ ¼øÈ¸ÇÏ´Â µ¥ ¸¸¾à todo Æ÷ÀÎÅÍ°¡ nullÀÌ µÇ¸é ¸ø Ã£°í Á¾·á.
-	todo* ptr_todo = p->get_first_todo();
-	int i = 1;
-	while (ptr_todo != NULL && i < num) {					// num ¸¸Å­ todoµé ¼øÈ¸. 
-		i++;
-		ptr_todo = ptr_todo->get_next_todo();
-	}
-
-	if (ptr_todo == NULL) {
-		cout << "ÀÔ·ÂÇÑ ¹øÈ£ÀÇ ÇÒ ÀÏÀÌ ¾ø½À´Ï´Ù." << endl;
-		return NULL;
-	}
-
-	return ptr_todo;
-}
-
-void remove_todo() {															// ÇÒ ÀÏÀ» Áö¿ì´Â ÇÔ¼ö.
-
-	category* ptr_cate = cate->select_cate();					// Ä«Å×°í¸® ¸ñ·Ï Ãâ·Â ¹× ÇÊ¿äÇÑ Ä«Å×°í¸®ÀÇ ÁÖ¼Ò ¹ÞÀ½.
-
-	if (ptr_cate == NULL) {
-		cout << "\tÁ¦°Å ½ÇÆÐ!!" << endl << endl;		// ¿¹¿Ü Ã³¸®.
-		return;
-	}
-
-	todo* p = remove_search_todo(ptr_cate);				// Áö¿ï todo¸¦ Ã£¾Æ ±× ÁÖ¼Ò¸¦ ¹ÝÈ¯.
-
-	if (p == NULL) {									// ¿¹¿Ü Ã³¸®.
-		cout << "\tÁ¦°Å ½ÇÆÐ!!" << endl << endl;
-		return;
-	}
-	
-	todo* p_next = p->get_next_todo();					// Áö¿ï ÇÒ ÀÏÀÇ ´ÙÀ½°ú ÀÌÀü ÁÖ¼Ò.
-	todo* p_prev = p->get_prev_todo();
-	
-	// Áö¿ì´Â °æ¿ì
-	// ¿¬°á¸®½ºÆ®ÀÇ
-	// 1. À¯ÀÏÇÑ °æ¿ì.		2. ¸Ç ¾ÕÀÎ °æ¿ì.		3. ¸Ç µÚÀÎ °æ¿ì.		4. Áß°£¿¡ ÀÖ´Â °æ¿ì.
-
-	if (p_next == NULL && p_prev == NULL) {								// 1. À¯ÀÏÇÑ °æ¿ì.
-		ptr_cate->set_first_todo(NULL);
-	}
-	else if (p_prev == NULL && ptr_cate->get_first_todo() == p) {		// 2. ¸Ç ¾ÕÀÎ °æ¿ì.
-		// p_next->prev¸¦ null·Î ±×¸®°í 
-		p_next->set_prev_todo(NULL);
-		ptr_cate->set_first_todo(p_next);
-	}
-	else if (p_next == NULL) {											// 3. ¸Ç µÚÀÎ °æ¿ì.
-		p_prev->set_next_todo(NULL);
-	}
-	else {																// 4. Áß°£¿¡ ÀÖ´Â °æ¿ì.
-		p_prev->set_next_todo(p_next);
-		p_next->set_prev_todo(p_prev);
-	}
-	string title = p->get_title();
-	delete(p);
-	cout << "\t" << title << " Á¦°Å ¼º°ø" << endl << endl;
-}
-
-string set_todo_title() {														// ÇÒ ÀÏÀÇ Á¦¸ñÀ» ÀÔ·Â¹Þ´Â ÇÔ¼ö.(ºó Ä­Àº Á¦¿Ü).
-
-	string title;
-
-	// ÇÒ ÀÏ ÀÔ·Â.
-	int first = 0;									// Ã³À½¸¸ ÀÔ·Â¹öÆÛ Áö¿ì±â¸¦ ½ÇÇàÇÏ±â À§ÇÑ º¯¼ö.
-	while (1) {
-
-		cout << "	ÇÒ ÀÏÀ» Àû¾îÁÖ¼¼¿ä.(Ã¹ ±ÛÀÚ °ø¹éx): ";
-
-		if (first == 0) {
-			getchar();								// ÀÔ·Â¹öÆÛ Á¦°Å.
-			first++;
-		}
-		getline(cin, title);
-
-		if (title.empty() || title[0] == ' ') {
-			cout << "\tÀÔ·ÂÀÌ ¾ø½À´Ï´Ù.\n" << endl;
-			continue;
-		}
-		break;
-	}
-	return title;									// ÇÒ ÀÏÀÇ Á¦¸ñ ¹ÝÈ¯.
-}
-
-string set_todo_time() {														// ÇÒ ÀÏÀÇ ½Ã°£À» ÀÔ·Â¹Þ´Â ÇÔ¼ö.
-
-	// ¿ù°ú ÀÏÀ» µû·Î ¹Þ¾Æ¼­ °Ë»ç.
-	// ÈÄ¿¡ string.append·Î ÇÕÃÄ¼­ time¿¡ ÀÔ·Â.
-
-	string time;
-	while (1) {
-
-		bool check = true;											// Á¦´ë·Î µÈ month¿Í dateÀÇ °ªÀ» ÀÔ·ÂÇß´ÂÁö È®ÀÎÇÒ º¯¼ö.
-
-		string month;
-		cout << "\t¸¶°¨ÀÏÀÇ ´ÞÀ» ÀÔ·Â(01~12) : ";					// month ÀÔ·Â (00 ~ 12);
-		cin >> month;
-
-		if (month.size() != 2)
-			check = false;
-
-		if (month[0] != '0' && month[0] != '1' && month[1] >= '0' && month[1] <= '9')
-			check = false;
-
-		if ((month[0] == '1' && month[1] > '2') || (month[0] == '0' && month[1] == '0'))
-			check = false;
-
-		if (check == false) {
-			cout << "\tÀß¸ø ÀÔ·Â" << endl;	continue;
-		}
-		
-		string date;
-		cout << "\t¸¶°¨ÀÏÀÇ ÀÏÀ» ÀÔ·Â(01~31) : ";					// date ÀÔ·Â (00 ~ 31);
-		cin >> date;
-
-		if (date.size() != 2)
-			check = false;
-
-		if (!(date[0] >= '0' && date[0] <= '3') && !(date[1] >= '0' && date[1] <= '9'))
-			check = false;
-		
-		if ((date[0] == '3' && date[1] > '1')|| (date[0] == '0' && date[1] == '0'))
-			check = false;
-
-		if (check == false) {
-			cout << "\tÀß¸ø ÀÔ·Â" << endl;	continue;
-		}
-
-		if (month == "02") {														// 2¿ù °Ë»ç.
-			if (date == "29" || date == "30" || date == "31") {
-				cout << "\t2¿ùÀº 28ÀÏ±îÁö " << endl;	continue;
-			}
-		}
-
-		if (month == "04" || month == "06" || month == "09" || month == "11") {		// 30ÀÏ °Ë»ç.
-			if (date == "31") {
-				cout << "\t" << month << "´Â 30ÀÏ±îÁö " << endl;	continue;
-			}
-		}
-		
-		time = month;
-		time.append(date);		
-		return time;																// ¸¶°¨ ½Ã°£ ¹ÝÈ¯.
-	}
-}
-
-string set_todo_detail() {																	// ¼¼ºÎ»çÇ× ÀÔ·Â ÇÔ¼ö.
-	string detail;
-	cout << "\tÀÚ¼¼ÇÑ ¼³¸íÀ» Àû¾îÁÖ¼¼¿ä.:";
-
-	getchar();										// ÀÔ·Â ¹öÇÇ Áö¿ì±â.
-	getline(cin, detail);
-
-	return detail;									// ¼¼ºÎ»çÇ× ¹ÝÈ¯.
-}
-
-void create_todo() {																		// ÇÒ ÀÏ »ý¼º ÇÔ¼ö.
-	
-	cout << "\t1. ÇÒ ÀÏ Ãß°¡." << endl;
-
-	string title = set_todo_title();
-	string time = set_todo_time();
-	string detail = set_todo_detail();
-
-	todo* ptr_todo = NULL;
-	ptr_todo = ptr_todo->create_todo(title, time, detail);				// ÇÒ ÀÏ »ý¼º.
-
-	if (ptr_todo == NULL) {												// ¿¹¿ÜÃ³¸®.
-		cout << "\tÇÒ ÀÏ Ãß°¡ ½ÇÆÐ!!" << endl << endl;
-	}
-
-	// ÇöÀç Ä«Å×°í¸®µéÀÇ ¸ñ·ÏÀ» Ãâ·Â.
-	// ÇÒ ÀÏÀÌ µé¾î°¥ Ä«Å×°í¸®¸¦ ¼±ÅÃ.
-	
-	int n;
-	while (1) {
-		
-		show_cate_list();										// ÇöÀç Ä«Å×°í¸®ÀÇ ¸ñ·ÏÀ» Ãâ·Â.
-		cout << "\tÇÒÀÏÀ» Ãß°¡ÇÒ Ä«Å×°í¸®ÀÇ ¹øÈ£¸¦ ÀÔ·ÂÇØÁÖ¼¼¿ä.: ";
-		cin >> n;
-
-		if (cate_struct.size == 0) {
-			cout << "\tÄ«Å×°í¸® ¸ñ·ÏÀÌ ºñ¾ú½À´Ï´Ù. Ä«Å×°í¸®¸¦ ¸ÕÀú ¸¸µé¾î ÁÖ¼¼¿ä." << endl << endl;
-			// ¿©±â¿¡ Ä«Å×°í¸®¸¦ Ãß°¡ÇÏ´Â ÇÔ¼ö¸¦ ½ÇÇà.
-			create_category();
-
-			// 
-
-			continue;
-		}
-		if (n <= 0 || n > cate_struct.size) {
-			cout << "\tÀß¸ø ÀÔ·Â!!" << endl;
-			continue;
-		}
-		break;
-	}
-
-	sort_todo_to_cate(ptr_todo, n);							// »ý¼ºµÈ todo °´Ã¼¿Í Ä«Å×°í¸®ÀÇ ¹øÈ£¸¦ ¸Å°³º¯¼ö·Î Ä«Å×°í¸®¿¡ Á¤·ÄµÇ¾î ÀÔ·Â.
-	cout << "\tÇÒ ÀÏ Ãß°¡ ¼º°ø!!" << endl << endl;
-}
-
-
-
-
-
 
 
 void load() {																				// ÆÄÀÏ ºÒ·¯¿À±â ÇÔ¼ö.
 
 	ifstream fp("to_do_list.txt");						// ÀÐ±â¿ë °´Ã¼ »ý¼º.
 
-	if (!(fp.is_open())) {								// ¿¹¿Ü Ã³¸®.
+	if (!(fp.is_open())) {								// ¿¹¿Ü Ã³¸® : ÆÄÀÏ ¿­±â ½ÇÆÐ.
 		cout << "not found file. " << endl;
 		return;
 	}
 
 	string s;
+	category* ptr_cate = NULL;							// Ä«Å×°í¸® ÇÔ¼öµéÀ» ´Ù·ç±â À§ÇØ ¼±¾ð.
 
 	while (fp) {
 		getline(fp, s);
 
 		if (s[0] == '@') {									// Ä«Å×°í¸® ±¸ºÐÀÚ.
 
-			string imsi_name = s.substr(1, s.size());		// '@' ¹®ÀÚ Á¦°Å.
+			string imsi_name = s.substr(1, s.size());					// '@' ¹®ÀÚ Á¦°Å.
 
-			if (!(cate_name_overlap(imsi_name))) {			// °°Àº ÀÌ¸§ÀÇ Ä«Å×°í¸® ÀÖ´ÂÁö Áßº¹ °Ë»ç. (ÀÖÀ¸¸é °Ç³Ê¶Ù±â).
+			if (!(ptr_cate->cate_name_overlap(imsi_name))) {			// °°Àº ÀÌ¸§ÀÇ Ä«Å×°í¸® ÀÖ´ÂÁö Áßº¹ °Ë»ç. (ÀÖÀ¸¸é °Ç³Ê¶Ù±â).
 				continue;
 			}
+			ptr_cate = ptr_cate->create_cate(imsi_name);				// Ä«Å×°í¸® °´Ã¼ »ý¼º ÈÄ ¿¬°á¸®½ºÆ®¿¡ Ãß°¡.
 
-			category* ptr_cate = NULL;
-			ptr_cate = ptr_cate->create_cate(imsi_name);	// Ä«Å×°í¸® °´Ã¼ »ý¼º ÈÄ ¿¬°á¸®½ºÆ®¿¡ Ãß°¡.
-
-			add_to_cate(ptr_cate);
+			ptr_cate->add_to_cate(ptr_cate);
 		}
 		else if (s[0] == '#') {								// ÇÒ ÀÏ ±¸ºÐÀÚ.
 
-			string imsi_todo = s.substr(1, s.size());		// '#' ¹®ÀÚ Á¦°Å.
-			load_add_todo(imsi_todo);						// ÀÐ¾î¿Â ÇÒ ÀÏ Ãß°¡ ÇÔ¼ö.
+			string imsi_todo = s.substr(1, s.size());					// '#' ¹®ÀÚ Á¦°Å.
+			load_add_todo(imsi_todo);									// ÀÐ¾î¿Â ÇÒ ÀÏ Ãß°¡ ÇÔ¼ö.
 		}
 	}
 	cout << "\tºÒ·¯¿À±â ¼º°ø!!" << endl << endl;
 	fp.close();
 }
 
-void load_add_todo(string imsi_todo) {											// load()¿¡¼­ ÀÐ¾î¿Â ÇÒ ÀÏ Ãß°¡ ÇÔ¼ö.
+
+void load_add_todo(string imsi_todo) {											// load()¿¡¼­ ÀÐ¾î¿Â ÇÒ ÀÏ ¹®Àå(imsi_todo) Ãß°¡ ÇÔ¼ö.
 
 	string cate, title, month, date, detail;
 
-	split(imsi_todo, cate);											 // split ÇÔ¼ö·Î ÁÖ¼Ò¸¦ ¹Þ¾Æ ¹®Àå¿¡¼­ ÇÊ¿äÇÑ °Íµé ÃßÃâ.
+	split(imsi_todo, cate);									 // split ÇÔ¼ö·Î ÁÖ¼Ò¸¦ ¹Þ¾Æ ¹®Àå¿¡¼­ ÇÊ¿äÇÑ °Íµé ÃßÃâ.
 	split(imsi_todo, title);
 	split(imsi_todo, month);
 	split(imsi_todo, date);
 	split(imsi_todo, detail);
 
-	string time = month;
-	time.append(date);
+	int check = atoi(month.c_str());
+	string time;
+	category* ptr_cate = NULL;
 
-	category* ptr_cate = search_cate(cate);							// ÀÐ¾î¿Â ¹®ÀåÀÇ category¸¦ Ã£À½.
+	try {														// ÀÐ¾î¿Â ¹®ÀåÀÇ ¸¶°¨ÀÏ°ú Ä«Å×°í¸® ¸í °Ë»ç.
+		if (check <= 0 || check > 12)							// ¿¹¿Ü : ¿ùÀÌ 1~12¿ù ¾Æ´Ñ °æ¿ì.
+			throw - 1;
 
-	if (ptr_cate == NULL) {											// ¿¹¿ÜÃ³¸® null
-		cout << "\t¸Þ¸ðÀå¿¡ Àß¸ø ÀûÀ¸¼Ì½À´Ï´Ù." << endl;
+		check = atoi(date.c_str());
+
+		if (check <= 0 || check > 31)							// ¿¹¿Ü : ÀÏÀÌ 1~31ÀÏÀÌ ¾Æ´Ñ °æ¿ì.
+			throw - 1;
+
+		time = month;
+		time.append(date);
+
+		ptr_cate = search_cate(cate);							// ÀÐ¾î¿Â ¹®ÀåÀÇ category¸¦ Ã£À½.
+
+		if (ptr_cate == NULL)									// ¿¹¿Ü : Ä«Å×°í¸®¸íÀÌ Àß¸øµÈ °æ¿ì.
+			throw - 2;
+	}
+	catch (int x) {																				// ¿¹¿Ü Ã³¸® : Ãß°¡ ½ÇÆÐÇÑ ¹®ÀåÀ» ¾Ë·ÁÁÜ.
+		cout << "\t\"" << title << "\"ÀÌ ÀÖ´Â ÀûÇôÀÖ´Â ¹®ÀåÀ» loadÇÏÁö ¸øÇß½À´Ï´Ù." << endl;
+		cout << "\tsave¸¦ ½ÇÇàÇÏ¸é ÀÌ ¹®ÀåÀ» Áö¿ó´Ï´Ù. " << endl;
 		return;
 	}
 
 	todo* ptr_todo = NULL;
-	ptr_todo = ptr_todo->create_todo(title, time, detail);			// ÇÒÀÏ °´Ã¼ »ý¼º.
+	ptr_todo = ptr_todo->create_todo(title, time, detail);		// ÇÒÀÏ °´Ã¼ »ý¼º.
 
-	sort_todo_to_cate(ptr_todo, ptr_cate->get_cate_index());		// Ä«Å×°í¸®¿¡ ¿¬°á.
+	ptr_cate->sort_todo_to_cate(ptr_todo, ptr_cate);			// Ä«Å×°í¸®¿¡ ¿¬°á.
 }
+
 
 void split(string& imsi_todo, string& s) {										// load()ÇÔ¼ö ÇÒ ÀÏ ¹®Àå¿¡¼­ ÇÊ¿äÇÑ ¹®ÀåÀ» ÃßÃâÇÏ´Â ÇÔ¼ö.
 
 	int length = imsi_todo.find("#");								// ±¸ºÐÀÚ "#";
 	s = imsi_todo.substr(0, length);
 
-	imsi_todo = imsi_todo.substr(length + 1, (imsi_todo.size()- length));
+	imsi_todo = imsi_todo.substr(length + 1, (imsi_todo.size() - length));
 }
+
+
+category* search_cate(string name) {											// Ä«Å×°í¸® ÀÌ¸§À» °¡Áö°í Ä«Å×°í¸®¸¦ Ã£´Â ÇÔ¼ö.
+
+	category* p = p->cate_head;
+
+	if (p == NULL) {									// ¿¹¿Ü Ã³¸® : Ä«Å×°í¸®°¡ ºó °æ¿ì.
+		cout << "\tÄ«Å×°í¸®°¡ ºñ¾ú½À´Ï´Ù." << endl;
+		return NULL;
+	}
+
+	while (p != NULL) {
+		if (name == p->get_cate_name()) {
+			return p;
+		}
+		p = p->get_next_cate();
+	}
+	return NULL;										// ¸ø Ã£Àº °æ¿ì.(¸ðµç °æ·Î ¹ÝÈ¯ °æ°í ¸Þ½ÃÁö ¹æÁö¿ë).
+}
+
 
 void save() {																	// ÆÄÀÏ ÀúÀå ÇÔ¼ö.
 
 	ofstream fp("to_do_list.txt");
 
-	if (!(fp.is_open())) {							// ¿¹¿Ü Ã³¸®.
+	if (!(fp.is_open())) {												// ¿¹¿Ü Ã³¸® : ÆÄÀÏ ¿­±â¸¦ ½ÇÆÐÇÑ °æ¿ì.
 		cout << "not found file. " << endl;
 		return;
 	}
 
-	category* ptr_cate = cate_struct.cate_tail;
+	category* ptr_cate = ptr_cate->cate_head;
 
-	if (ptr_cate == NULL) {
+	if (ptr_cate == NULL) {												// ¿¹¿Ü Ã³¸® : ÇöÀç Ä«·¹°í¸®°¡ ºñ¾úÀ» °æ¿ì(ÀúÀåÇÒ °ÍÀÌ ¾ø´Â °æ¿ì).
 		cout << "\tÄ«Å×°í¸®°¡ ¾ø½À´Ï´Ù. ÀúÀåÇÏ±â ½ÇÆÐ!!" << endl;
 		return;
 	}
 
 	while (ptr_cate != NULL) {
 		string print_cate = "@";										// ÆÄÀÏ¿¡ Ä«Å×°í¸® Ãâ·Â.
-		print_cate.append(ptr_cate->get_cate_name());					// "@Ä«Å×°í¸®ÀÌ¸§" Ãâ·Â
+		print_cate.append(ptr_cate->get_cate_name());					// "@Ä«Å×°í¸®ÀÌ¸§" Ãâ·Â °úÁ¤.
 		print_cate.append("\n");
 		fp.write(print_cate.c_str(), print_cate.size());
 
@@ -395,12 +195,12 @@ void save() {																	// ÆÄÀÏ ÀúÀå ÇÔ¼ö.
 
 			ptr_todo = ptr_todo->get_next_todo();
 		}
-
-		ptr_cate = ptr_cate->get_prev_cate();
+		ptr_cate = ptr_cate->get_next_cate();
 	}
 	cout << "\tÀúÀåÇÏ±â ¼º°ø!!" << endl << endl;
 	fp.close();
 }
+
 
 string save_to_todo(todo* p, category* ptr_cate) {								// save()¿¡¼­ Ãâ·ÂÇÒ ÇÒ ÀÏ ¹®Àå »ý¼º ÇÔ¼ö.
 
@@ -427,6 +227,7 @@ string save_to_todo(todo* p, category* ptr_cate) {								// save()¿¡¼­ Ãâ·ÂÇÒ Ç
 
 	return print_todo;									// "#Ä«Å×°í¸®¸í#Á¦¸ñ#¿ù#ÀÏ#¼¼ºÎ»çÇ×#" À¸·Î ¼öÁ¤ÇÑ ¹®ÀÚ¿­ ¹ÝÈ¯.
 }
+
 
 void link(string& s, string part) {								// save()¸¦ À§ÇÑ ¹®ÀÚ¿­ ÆíÁý ÇÔ¼ö.
 																// ÇöÀç ¹®ÀÚ¿­ + Ãß°¡ÇÒ ¹®ÀÚ¿­ + #

@@ -1,50 +1,19 @@
-#ifndef COMMAND_H
-#define COMMAND_H
+#pragma once;
 
 #include "category.h"
-#include <iostream>
-#include <string>
-using namespace std;
+#include "todo.h"
 
-// 초기 설정 및 메인 메뉴에서 보여지는 함수.
-void init_setting();
-void show_important();
-void show_all();
+void init_setting();											// 초기 설정을 실행해주는 함수.
+void show_all();												// 모든 카테고리와 할 일을 출력하는 함수.
+void show_important();											// 중요함 카테고리(2번 카테고리)를 출력해주는 함수.
 
-// 파일 입출력 관련.
-void load();
-void save();
-void load_add_todo(string imsi_todo);
-void split(string& imsi_todo, string& s);
-void load_add_todo(string imsi_todo);
-void split(string& imsi_todo, string& s);
-string save_to_todo(todo* p, category* ptr_cate);
-void link(string& s, string part);
+// 파일 불러오기 함수.
+void load();													// "to_do_list.txt"에서 카테고리와 할 일을 읽어들이는 함수.
+void split(string& imsi_todo, string& s);						// 할 일이 적혀있는 문장에서 필요한 문장들을 추출하는 함수.
+void load_add_todo(string imsi_todo);							// load()함수에서 추출한 todo 문장을 카테고리에 추가해주는 함수.
+category* search_cate(string name);								// load_add_todo()함수에서 todo를 추가할 카테고리를 찾아주는 함수.
 
-///*void cate_menu();*/											 // category 관련 함수들
-//void create_category();
-//void show_category();											// select_cate 실행 후, show_cate_todos 실행.
-//void remove_category();
-//category* select_cate();										// 필요한 카테고리의 주소를 받는 함수.
-//void add_to_cate(category* ptr_cate);
-//void show_cate_list();
-//category* search_cate(int n);									// 오버로딩( 이름과 번호 )
-/*category* search_cate(string name);		*/			
-//bool cate_name_overlap(string imsi_name);
-
-//void sort_todo_to_cate(todo* ptr_todo, int n);					// 할 일을 카테고리에 분류하는 함수.
-//void show_cate_todos(category* ptr_cate);
-
-/*void todo_menu();*/											// todo 관련 함수들
-void create_todo();								
-
-string set_todo_title();
-string set_todo_time();
-string set_todo_detail();
-
-todo* remove_search_todo(category* p);
-void search_todo();
-void remove_todo();
-
-
-#endif
+// 파일 저장하기 함수.
+void save();													// "to_do_list.txt"에 카테고리와 할 일을 저장하는 함수.
+string save_to_todo(todo* p, category* ptr_cate);				// save()함수에서 todo를 출력할 문장(#카테고리#할 일....) 생성 함수.
+void link(string& s, string part);								// 구분자 "#"을 입력해주는 함수.

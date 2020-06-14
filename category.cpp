@@ -1,27 +1,29 @@
 #include "category.h"
 
-// 한 번 카테고리 객체를 전역변수로 만들어 보자.
-
+// static 멤버들 초기화.
 int category::cate_num = 0;
+category* category::cate_head = NULL;
+category* category::cate_tail = NULL;
 
 
-category::category(string cate_name) {
+category::category(string cate_name) {					// 생성자.
 	this->cate_name = cate_name;
 	this->index = ++cate_num;
 	this->first_todo = NULL;
 	this->next_cate = NULL;
 	this->prev_cate = NULL;
+	this->todo_num = 0;
 }
 
 category* category::create_cate(string cate_name) {
 
 	category* ptr_cate = new category(cate_name);		// 이름과 순서만 초기화된 카테고리 객체 생성.
 
-	return ptr_cate;									
+	return ptr_cate;
 }
 
 void category::set_next_cate(category* p) {				// 다음 category의 주소를 받는 함수.
-	
+
 	this->next_cate = p;
 }
 
@@ -59,19 +61,42 @@ string category::get_cate_name() {						// category의 이름 반환.
 }
 
 
-// ===============================
-void create_category() {															// 카테고리 생성 함수.
+void category::add_to_cate(category* ptr_cate) {									// cate 구조체의 head와 tail에 생성된 category들을 연결시켜주는 함수.
+
+	if (ptr_cate == NULL) {												// 예외 처리.
+		cout << "전달된 category 객체가 없습니다." << endl;
+		return;
+	}
+
+	// 생성된 category 객체를 받아서 연결리스트에 추가할 때.
+	// 연결리스트가
+	// 1. 빈 리스트(처음 세팅 때 필요).	2. 빈 연결리스트가 아닌 경우.			
+
+	if (cate_num == 1 && cate_head == NULL) {							// 1. 연결리스트가 빈 경우.	 // (생성자에서 cate_num을 +1 해주기 때문에 cate_num == 1)
+
+		cate_head = ptr_cate;
+		cate_tail = ptr_cate;
+	}
+	else {																// 2. 빈 연결리스트가 아닌 경우.																// (끝부분에 새로운 카테고리 추가).
+		ptr_cate->set_prev_cate(category::cate_tail);					// (끝부분에 새로운 카테고리 추가).
+		cate_tail->set_next_cate(ptr_cate);
+		cate_tail = ptr_cate;
+	}
+}
+
+void category::create_cate() {															// 카테고리 생성 함수(이름 입력 받는 과정 포함).
 
 	string name;
 
-	while (1) {													// 이름 중복 검사 부분.
+	rewind(stdin);
 
-		cout << "생성할 카테고리의 이름을 입력해주세요.: ";
-		getchar();												// 입력 버퍼 제거.
+	while (1) {																			// 이름 중복 검사 부분.
+
+		cout << endl << "생성할 카테고리의 이름을 입력해주세요.: ";									
 		getline(cin, name);
 
-		if (!(cate_name_overlap(name))) {						// 이름 중복 검사 해주는 함수 호출.
-			cout << "\t중복된 카테고리가 존재." << endl << endl;
+		if (!(cate_name_overlap(name))) {												// 이름 중복 검사 해주는 함수 호출.
+			cout << "\t중복된 카테고리가 존재. 카테고리 생성 실패." << endl << endl;
 			return;
 		}
 		break;
@@ -84,12 +109,11 @@ void create_category() {															// 카테고리 생성 함수.
 	cout << "\t" << name << " 카테고리 생성 성공" << endl << endl;
 }
 
+bool category::cate_name_overlap(string imsi_name) {												// 카테고리 이름 중복 검사 함수.
 
-bool cate_name_overlap(string imsi_name) {												// 카테고리 이름 중복 검사 함수.
+	category* p = cate_head;								// 1번 카테고리 부터 검사.
 
-	category* p = cate_struct.cate_head;
-
-	if (p == NULL) {
+	if (p == NULL) {										// 예외 처리 : 현재 카테고리가 없는 경우.
 		cout << "\t현재 카테고리가 비었습니다." << endl;
 		return true;
 	}
@@ -101,67 +125,160 @@ bool cate_name_overlap(string imsi_name) {												// 카테고리 이름 중복 검사
 		}
 		p = p->get_next_cate();
 	}
-
 	return true;
 }
 
-void add_to_cate(category* ptr_cate) {									// cate 구조체의 head와 tail에 생성된 category들을 연결시켜주는 함수.
+void category::show_cate_list() {																// 카테고리 목록 보기.
 
-	// 생성된 category 객체를 받아서 연결리스트에 추가할 때. ( 입력 방향이 단방향이다. )
-	// 연결리스트가
-	// 1. 빈 리스트(처음 세팅 때 필요).	2. 빈 연결리스트가 아닌 경우.			
+	category* p = cate_head;
 
-	if (cate_struct.size == 0 && cate_struct.cate_head == NULL) {		// 1. 연결리스트가 빈 경우.
-
-		cate_struct.cate_head = ptr_cate;
-		cate_struct.cate_tail = ptr_cate;
+	if (p == NULL) {
+		cout << "카테고리가 비었습니다." << endl << endl;
+		return;
 	}
-	else {																// 2. 빈 연결리스트가 아닌 경우.
-
-		ptr_cate->set_next_cate(cate_struct.cate_head);
-		cate_struct.cate_head->set_prev_cate(ptr_cate);
-		cate_struct.cate_head = ptr_cate;
-	}
-
-	cate_struct.size++;								// 카테고리들의 번호와 카테고리 구조체의 사이즈를 키워주기 위해.
-}
-
-
-void show_cate_list() {																// 카테고리 목록 보기.
-
-	category* p = cate_struct.cate_tail;						// 나중에 생성된 것부터 보기 위해 tail을 시작점으로.
 
 	cout << "카테고리 목록" << endl;
-	int i = 1;
-
 	while (p != NULL) {
-		cout << "\t" << i << ". " << p->get_cate_name() << endl;
-		p = p->get_prev_cate();
-		i++;
+		cout << "\t" << p->get_cate_index() << ". " << p->get_cate_name() << endl;
+		p = p->get_next_cate();
 	}
 	cout << endl;
 }
 
-category* search_cate(int n) {														// 카테고리의 index로 카테고리를 찾는 함수.
+category* category::search_cate() {														// 카테고리의 index로 카테고리를 찾는 함수.
 
-	category* p = cate_struct.cate_head;
+	if (cate_num == 0) {						// 예외 처리 : 카테고리가 하나도 없는 경우.
+		return NULL;
+	}
 
-	while (p != NULL && n > 0 && n <= cate_struct.size) {
+	int n;
+	cin >> n;
 
-		if (p->get_cate_index() == n) {							// 카테고리의 일련번호와 입력받은 n이 같으면 그 카레고리의 주소 리턴.
+	if (n<=0 || n> cate_num) {												// 예외 처리 : n값을 잘못 입력한 경우.
+		cout << "\t입력한 번호의 카테고리가 없습니다. " << endl << endl;				
+		return NULL;
+	}
+
+	category* p = cate_head;
+	while (p != NULL) {
+		if (p->get_cate_index() == n) {
 			return p;
 		}
 		p = p->get_next_cate();
 	}
-
-	return NULL;												// 못 찾았으면 NULL 값 반환.
+	return p;						// 예외 처리 : 만약 못 찾았으면 null값 반환.
 }
 
-void show_cate_todos(category* ptr_cate) {											// 카테고리에 연결된 할 일들을 출력해주는 함수.
+void category::remove_category() {												// 카테고리 지우기.
 
-	if (ptr_cate == NULL) {															// 예외 처리.
+	if (cate_num == 0) {														// 예외 처리 : 카테고리가 없을 경우.
+		cout << "\t현재 카테고리 목록이 비었습니다." << endl << endl;
+		cout << "==========================================================" << endl;
 		return;
 	}
+
+	show_cate_list();															// 현재 카테고리들의 목록 출력.
+	cout << "\t지우고 싶은 카테고리의 번호를 입력: ";
+
+	category* ptr_cate = search_cate();											// 필요한 카테고리를 찾아 리턴받음.
+
+	
+	if (ptr_cate == NULL) {														// 예외 처리 : 잘못된 입력을 받았을 경우.
+		cout << "\tcategory_menu로 돌아갑니다." << endl << endl;							
+		cout << "==========================================================" << endl;
+		return;
+	}
+
+	// 카테고리 연결리스트가
+	// 1. 비었다.		2.  유일한 카테고리.		3. 맨 앞		4. 맨 뒤		5. 중간		
+
+	if (cate_head == NULL && cate_num == 0) {													// 1. 빈 경우.
+
+		cout << "\t카테고리가 이미 비었습니다." << endl << endl;
+		return;
+	}
+	else if (ptr_cate == cate_head && ptr_cate == cate_tail) {									// 2. 유일한 1개
+
+		cate_head = NULL;
+		cate_tail = NULL;
+	}
+	else if (ptr_cate == cate_head) {															// 3. 처음
+
+		category* q = ptr_cate->get_next_cate();
+		q->set_prev_cate(NULL);
+		cate_head = q;
+	}
+	else if (ptr_cate == cate_tail) {															// 4. 마지막
+
+		category* q = ptr_cate->get_prev_cate();
+		q->set_next_cate(NULL);
+		cate_tail = q;
+	}
+	else {																						// 5. 중간
+
+		category* next_p = ptr_cate->get_next_cate();
+		category* prev_p = ptr_cate->get_prev_cate();
+
+		next_p->set_prev_cate(prev_p);
+		prev_p->set_next_cate(next_p);
+	}
+
+	// 지울 카테고리의 다음 카테고리들의 index를 1씩 감소시켜 준다. ( 늦게 생성될 수록 index 번호가 높기 때문에.)
+	category* p_next = ptr_cate->get_next_cate();
+
+	while (p_next != NULL) {						// 지울 카테고리가 중간 or 맨 앞일 때만 실행. 
+													// (지울 카테고리의 다음 카테고리들의 번호(index) 1씩 감소.)
+		p_next->index--;
+		p_next = p_next->get_next_cate();
+	}
+
+	string imsi = ptr_cate->get_cate_name();
+
+	cate_num--;
+	delete(ptr_cate);
+	cout << "\t" << imsi << " 카테고리 제거 성공" << endl << endl;
+	cout << "==========================================================" << endl;
+}
+
+
+void category::show_category() {												// 카테고리 이름과 그에 연결된 todo들 보기.			
+
+	// 카테고리 목록의 이름을 먼저 보여준다.
+	// 그 후에 카테고리의 번호를 입력하게 한다.
+	// 카테고리의 연결리스트들을 순회하며 입력된 번호의 카테고리를 찾는다.
+	// 찾은 카테고리의 이름과 그와 연결된 todo들 출력.
+
+	category* p = NULL;
+
+	try {
+		if (cate_num == 0) {														// 예외 : 카테고리가 하나도 없다면.
+			throw - 1;
+		}
+
+		show_cate_list();															// 현재 카테고리 목록 출력.
+
+		cout << "보고싶은 카테고리의 번호를 입력하세요. :";
+		p = search_cate();
+
+		if (p == NULL)																// 예외 : 카테고리의 번호를 잘못 입력.
+			throw 3.14;
+	}
+	catch (int x) {																	// 예외 처리 : 경고문 출력 후. cate_menu로 돌아감.	
+		cout << "\t현재 카테고리 목록이 비었습니다." << endl << endl;
+		cout << "==========================================================" << endl;
+		return;
+	}
+	catch (double pi) {
+		cout << "==========================================================" << endl;
+		return;
+	}
+
+	show_cate_todos(p);						// todo들 출력하는 함수.
+}
+
+
+void category::show_cate_todos(category* ptr_cate) {											// 카테고리에 연결된 할 일들을 출력해주는 함수.
+
 
 	todo* ptr_todo = ptr_cate->get_first_todo();
 
@@ -169,7 +286,7 @@ void show_cate_todos(category* ptr_cate) {											// 카테고리에 연결된 할 일�
 
 	cout << "==========================================================" << endl;
 
-	if (ptr_todo == NULL)															// 예외 처리.
+	if (ptr_todo == NULL)															// 예외 처리 : 할 일이 없다면
 		cout << "\t카테고리의 할 일이 비었습니다." << endl << endl;
 
 	int i = 1;																		// 할 일들의 번호를 옆에 출력.(나중에 검색하기 위해.)
@@ -183,34 +300,16 @@ void show_cate_todos(category* ptr_cate) {											// 카테고리에 연결된 할 일�
 	}
 	cout << endl;
 	cout << "==========================================================" << endl;
-
 }
 
-category* select_cate() {											// 카테고리의 index로 카테고리를 찾는 함수.
 
-	show_cate_list();
+void category::sort_todo_to_cate(todo* ptr_todo, category* ptr_cate) {									// 생성된 todo 객체를 카테고리에 입력하는 함수.
 
-	int n;
-	cout << "다룰 카테고리 번호 입력(없으면 아무 숫자 입력): ";
-	cin >> n;
-
-	category* p = search_cate(n);
-
-	if (p == NULL) {												// 예외처리 찾지 못햇을 경우.
-		cout << "\t입력한 번호의 카테고리가 없습니다." << endl << endl;
-		cout << "==========================================================" << endl;
-		return NULL;
+	if (ptr_cate == NULL) {
+		return;
 	}
 
-	return p;
-}
-
-void sort_todo_to_cate(todo* ptr_todo, int n) {								// 생성된 todo 객체를 카테고리에 입력하는 함수.
-
-	category* ptr_cate = search_cate(n);							// 카테고리를 찾아줌. 이때 n은 검사해서 들어왔으므로 따로 검사 x.
-
-	// 할 일을 카테고리에 연결
-	// 날짜 순서대로 정렬
+	// 할 일을 카테고리에 연결. (마감일 순서대로 정렬.)
 	// 할 일의 연결리스트가 
 	// 1. 비었을 때,	2. 맨 앞에 올 때,	3. 맨 뒤에 올 때,	중간에 삽입될 때.
 
@@ -218,15 +317,15 @@ void sort_todo_to_cate(todo* ptr_todo, int n) {								// 생성된 todo 객체를 카�
 	todo* p = ptr_cate->get_first_todo();
 	todo* q = NULL;
 
-	while (p != NULL) {												// 연결리스트 상의 위치 찾는 과정.
-																	// 마감일을 비교
+	while (p != NULL) {													// 연결리스트 상의 위치 찾는 과정.
+																		// 마감일을 비교
 		if (ptr_todo->get_due_data() < p->get_due_data()) {
 			break;
 		}
 		q = p;
 		p = p->get_next_todo();
 	}
-
+																		// todo 연결리스트가
 	if (p == NULL && ptr_cate->get_first_todo() == NULL) {				// 1. 비었을 때.
 		ptr_cate->set_first_todo(ptr_todo);
 	}
@@ -246,120 +345,18 @@ void sort_todo_to_cate(todo* ptr_todo, int n) {								// 생성된 todo 객체를 카�
 		p->set_prev_todo(ptr_todo);
 		q->set_next_todo(ptr_todo);
 	}
+
+	ptr_cate->increase_todo_num();									// 카테고리 객체에 할 일의 개수(todo_num)을 1 증가.
 }
 
-void remove_category() {												// 카테고리 지우기.
-
-	show_cate_list();
-
-	int n;
-	cout << "\t지우고 싶은 카테고리의 번호를 입력: ";
-	cin >> n;
-
-	// 카테고리의 연결리스트들을 순회하며 입력된 번호의 카테고리를 찾아 그 주소를 반환받음.
-	// 그 카테고리와 연결된 todo들을 먼저 delete.
-	// 그 후 다 지워진 걸 확인한 다음. category를 삭제. 그 이후의 연결리스트들의 번호를 1씩 감소시켜준다.
-
-	category* ptr_cate = search_cate(n);
-
-	if (ptr_cate == NULL) {												// 예외처리 찾지 못햇을 경우.
-		cout << "\t입력한 번호의 카테고리가 없습니다." << endl;
-		cout << "==========================================================" << endl;
-		return;
-	}
-
-	// todo가 없으면 바로 delete 있으면 하나씩 순회하며 delete 후 카테고리 delete.
-
-	todo* ptr_todo = ptr_cate->get_first_todo();
-
-	while (ptr_todo != NULL) {
-		todo* q = ptr_todo;
-		ptr_todo = ptr_todo->get_next_todo();
-		delete(q);
-	}
-
-	// cate delete 하는데 
-	// 카테고리 연결리스트가
-	// 1. 비었다.		2.  유일한 카테고리.		3. 맨 앞(근데 0,1은 안 지울 것임.)	4. 맨 뒤		5. 중간		
-
-	if (cate_struct.cate_head == NULL && cate_struct.size == 0) {								// 1. 빈 경우.
-
-		cout << "\t카테고리가 이미 비었습니다." << endl << endl;
-		return;
-	}
-	else if (ptr_cate == cate_struct.cate_head && ptr_cate == cate_struct.cate_tail) {			// 2. 유일한 1개
-
-		cate_struct.cate_head = NULL;
-		cate_struct.cate_tail = NULL;
-	}
-	else if (ptr_cate == cate_struct.cate_head) {												// 3. 처음
-
-		category* q = ptr_cate->get_next_cate();
-		q->set_prev_cate(NULL);
-		cate_struct.cate_head = q;
-	}
-	else if (ptr_cate == cate_struct.cate_tail) {												// 4. 마지막
-
-		category* q = ptr_cate->get_prev_cate();
-		q->set_next_cate(NULL);
-		cate_struct.cate_tail = q;
-	}
-	else {																						// 5. 중간
-
-		category* next_p = ptr_cate->get_next_cate();
-		category* prev_p = ptr_cate->get_prev_cate();
-
-		next_p->set_prev_cate(prev_p);
-		prev_p->set_next_cate(next_p);
-	}
-
-	// 지울 카테고리의 이전 카테고리들의 index를 1씩 감소시켜 준다. ( 늦게 생성될 수록 index 번호가 높기 때문에.)
-	category* prev_p = ptr_cate->get_prev_cate();
-
-	while (prev_p != NULL) {										// 중간이거나 맨 앞일 때만 실행. (지운 카테고리의 다음 카테고리들의 번호(index) 1씩 감소.
-
-		prev_p->increase_index();									// 카테고리들의 자체 index를 1씩 감소 시켜주는 함수.
-		prev_p = prev_p->get_prev_cate();
-	}
-
-	string imsi = ptr_cate->get_cate_name();
-
-	category::cate_num--;
-	cate_struct.size--;
-	delete(ptr_cate);
-	cout << "\t" << imsi << " 카테고리 제거 성공" << endl << endl;
-	cout << "==========================================================" << endl;
+int category::get_todo_num() {														// 현재 카테고리에 연결된 할 일의 개수를 리턴.
+	return todo_num;
 }
 
-
-void show_category() {												// 카테고리 이름과 그에 연결된 todo들 보기.			
-
-	// 카테고리 목록의 이름을 먼저 보여준다.
-	// 그 후에 카테고리의 번호를 입력하게 한다.
-	// 카테고리의 연결리스트들을 순회하며 입력된 번호의 카테고리를 찾는다.
-	// 그러면 카테고리의 이름과 그와 연결된 todo들을 보여준다.
-
-	category* p = select_cate();
-
-	show_cate_todos(p);
-
+void category::increase_todo_num() {												// 현재 카테고리에 연결된 할 일의 개수++.		
+	this->todo_num++;
 }
 
-category* search_cate(string name) {											// 카테고리 이름을 가지고 카테고리를 찾는 함수.
-
-	category* p = cate_struct.cate_head;
-
-	if (p == NULL) {
-		cout << "\t카테고리가 비었습니다." << endl;
-		return NULL;
-	}
-
-	while (p != NULL) {
-
-		if (name == p->get_cate_name()) {
-			return p;
-		}
-		p = p->get_next_cate();
-	}
-	return NULL;							// 못 찾은 경우. 메모장에 잘못 적혀 있는 것.
+void category::decrease_todo_num() {												// 현재 카테고리에 연결된 할 일의 개수--.
+	this->todo_num--;
 }
