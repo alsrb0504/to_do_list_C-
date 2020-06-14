@@ -360,3 +360,44 @@ void category::increase_todo_num() {												// 현재 카테고리에 연결된 할 일�
 void category::decrease_todo_num() {												// 현재 카테고리에 연결된 할 일의 개수--.
 	this->todo_num--;
 }
+
+
+void category::search_name_cate() {													// 카테고리의 이름으로 검색하는 함수.
+
+	category* ptr_cate = cate_head;
+
+	if (ptr_cate == NULL) {																// 예외 처리 : 카테고리가 없는 경우.
+		cout << "현재 카테고리가 없습니다." << endl;
+		return;
+	}
+
+	show_cate_list();		// 카테고리 목록 먼저 보여줌.
+
+	rewind(stdin);			// 입력 버퍼 지우기.
+
+	string word;
+	cout << "검색할 카테고리에 포함된 단어를 입력해주세요. : ";
+	getline(cin, word);
+
+	cout << endl;
+
+	int count = 0;																	// 찾은 카테고리의 개수를 출력해줄 변수.
+
+	while (ptr_cate != NULL) {
+		
+		string title = ptr_cate->get_cate_name();								// 비교할 문자열을 받음.
+
+		if (title.find(word) != string::npos) {									// 만약 title에서 입력한 word를 찾았으면 string::npos를 반환 안함.
+
+			cout << "\t" << ++count << ". 찾은 카테고리: " << ptr_cate->get_cate_name() << endl;			// 찾은 개수 ++count
+		
+			show_cate_todos(ptr_cate);											// 찾은 카테고리에 연결된 할 일들도 출력.
+		}
+			
+		ptr_cate = ptr_cate->get_next_cate();
+	}
+
+	cout << "\t찾은 카테고리의 개수 :" << count << endl << endl;
+
+	cout << "==========================================================" << endl << endl;
+}

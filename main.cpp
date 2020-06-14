@@ -79,7 +79,7 @@ void menu() {																		// 초기 메뉴화면을 출력해주는 함수.
 	cout << "\t\t(5) >> 파일 불러오기" << endl;
 	cout << "\t\t(6) >> 파일 저장하기" << endl;
 	cout << "\t\t(10) >> exit" << endl << endl;;
-	cout << "==========================================================" << endl << endl;
+	cout << "==========================================================" << endl;
 }
 
 void cate_menu() {																	// 카테고리 관련 처리를 실행하는 함수.
@@ -90,10 +90,11 @@ void cate_menu() {																	// 카테고리 관련 처리를 실행하는 함수.
 
 		cout << "\t\tCategory 명령어 목록:" << endl << endl;
 		cout << "\t\t(1) >> 카테고리 추가" << endl;
-		cout << "\t\t(2) >> 카테고리 보기" << endl;
+		cout << "\t\t(2) >> 카테고리 검색" << endl;
 		cout << "\t\t(3) >> 카테고리 제거" << endl;
-		cout << "\t\t(4) >> 카테고리 목록 보기" << endl;
-		cout << "\t\t(5) >> 처음화면으로 돌아가기" << endl << endl;
+		cout << "\t\t(4) >> 카테고리 보기" << endl;
+		cout << "\t\t(5) >> todo menu로 이동하기" << endl;
+		cout << "\t\t(6) >> 처음화면으로 돌아가기" << endl << endl;
 
 		cout << "==========================================================" << endl;
 		cout << "category_command" << endl;
@@ -113,22 +114,26 @@ void cate_menu() {																	// 카테고리 관련 처리를 실행하는 함수.
 			cout << "(1) >>  카테고리 생성 실행" << endl << endl;
 			p->create_cate();
 		}
-		else if (category_command == 2) {											// (2) >> 나중에 show_categorys 로 수정
-			cout << "(2) >>  카테고리 보기 실행" << endl << endl;
-			p->show_category();
+		else if (category_command == 2) {											// (2) >> 카테고리 검색 함수.
+			cout << "(2) >>  카테고리 검색 실행" << endl << endl;
+			p->search_name_cate();
 		}
 		else if (category_command == 3) {											// (3) >> 카테고리 제거 함수.
 			cout << "(3) >>  카테고리 제거 실행" << endl << endl;
 			p->remove_category();
 		}
-		else if (category_command == 4) {											// (4) >> 현재 category들의 이름만 출력.
-			cout << "(4) >>  카테고리 목록 보기 실행" << endl << endl;
-			p->show_cate_list();
+		else if (category_command == 4) {											// (4) >> 카테고리와 연결된 할 일들 출력 함수.
+			cout << "(4) >>  카테고리 보기 실행" << endl << endl;
+			p->show_category();
 		}
-		else if (category_command == 5) {											// (5) >> 프로그램 시작 화면으로 돌아감.
+		else if (category_command == 5) {											// (5) >> 현재 category들의 이름만 출력.
+			cout << "(5) >>  todo menu로 이동하기 실행" << endl << endl;
+			todo_menu();
+		}
+		else if (category_command == 6) {											// (6) >> 프로그램 시작 화면으로 돌아감.
 			cout << "\t초기 메뉴로 돌아갑니다." << endl << endl;
 			cout << "==========================================================" << endl;
-			break;
+			start_program();
 		}
 		else {
 			cout << "잘못 입력했습니다. 다시 입력해주세요." << endl << endl;
@@ -147,7 +152,8 @@ void todo_menu() {													// 할 일 관련 처리를 실행하는 함수.
 		cout << "\t\t(1) >> 할 일 추가" << endl;
 		cout << "\t\t(2) >> 할 일 검색" << endl;
 		cout << "\t\t(3) >> 할 일 제거" << endl;
-		cout << "\t\t(4) >> 처음화면으로 돌아가기" << endl << endl;
+		cout << "\t\t(4) >> category menu로 이동하기" << endl;
+		cout << "\t\t(5) >> 처음화면으로 돌아가기" << endl << endl;
 
 		cout << "==========================================================" << endl;
 		cout << "todo_command" << endl;
@@ -175,9 +181,14 @@ void todo_menu() {													// 할 일 관련 처리를 실행하는 함수.
 			cout << "(3) >> 할 일 제거 실행" << endl << endl;
 			p->remove_todo();
 		}
-		else if (todo_command == 4) {											// (4) >> 프로그램 시작 화면으로 돌아감.
+		else if (todo_command == 4) {											// (4) >> 할 일 제거.
+			cout << "(4) >> category menu로 이동하기" << endl << endl;
+			cate_menu();
+		}
+		else if (todo_command == 5) {											// (5) >> 프로그램 시작 화면으로 돌아감.
 			cout << "\t초기 메뉴로 돌아갑니다." << endl << endl;
-			break;
+			cout << "==========================================================" << endl;
+			start_program();
 		}
 		else {
 			cout << "잘못 입력했습니다. 다시 입력해주세요." << endl << endl;

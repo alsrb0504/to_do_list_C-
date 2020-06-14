@@ -59,4 +59,6 @@ public:
 	void show_category();											// 선택한 카테고리와 그에 연결된 할 일들을 출력 함수.
 	void show_cate_todos(category* ptr_cate);						// 카테고리에 연결된 할 일들을 출력 함수.
 	void sort_todo_to_cate(todo* ptr_todo, category* ptr_cate);		// 카테고리에 할 일을 추가할 때 마감일 순으로 정렬해서 추가하는 함수.
+
+	void search_name_cate();										// 카테고리의 이름으로 검색하는 함수.
 };
