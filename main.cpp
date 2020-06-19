@@ -9,6 +9,7 @@ void menu();											// 초기 메뉴화면을 출력해주는 함수.
 void cate_menu();										// 카테고리 관련 처리를 실행하는 함수.
 void todo_menu();										// 할 일 관련 처리를 실행하는 함수.
 
+int checking_load = 0;									// main.cpp 에서만 쓰일 (5) 파일 불러오기 실행 횟수.
 
 int main() {
 
@@ -51,10 +52,37 @@ void start_program() {																	// 일정 관리 프로그램.
 		}
 		else if (command == 5) {											// (5) >> to_do_list.txt에 저장된 카테고리와 할 일들을 입력.
 			cout << "(5) >>  파일에서 불러오기 실행" << endl << endl;
+
+			if (checking_load != 0) {												// 파일 불러오기를 실행한 상태에서 한 번더 실행하면 할 일들이 두 번씩 추가됨.
+				cout << "이미 파일 불러오기를 실행한 적이 있습니다." << endl;		// 또 실행하기 전에 물어보는 과정.
+				cout << "한 번 더 파일 불러오기를 실행하시겠습니까? (y/n)>>";
+				char ch;
+				cin >> ch;
+				if (ch != 'y') {													// y나 n이 아닌 다른 문자 입력해도 취소.
+					cout << "파일 불러오기를 취소합니다." << endl << endl;
+					continue;
+				}
+			}
+
 			load();
+
+			checking_load++;			// 파일 불러오기 횟수를 기록할 변수.
 		}
 		else if (command == 6) {											// (6) >> to_do_list.txt에 콘솔에서 다룬 카테고리와 할 일들을 저장.
 			cout << "(6) >>  파일에 저장하기 실행" << endl << endl;
+
+			if (checking_load == 0) {												// 파일 불러오기의 횟수가 0일 때, 파일 저장하기를 할 것인지 경고문 출력.
+				cout << "파일 불러오기를 실행한 적이 없습니다." << endl;
+				cout << "지금 파일 저장하기를 실행하면 기존의 기록들이 모두 지워집니다." << endl;
+				cout << "그래도 실행하시겠습니까? (y/n)>>";
+				char ch;
+				cin >> ch;
+				if (ch != 'y') {													// y나 n이 아닌 다른 문자 입력해도 취소
+					cout << "파일 저장하기를 취소합니다." << endl << endl;
+					continue;
+				}
+			}
+	
 			save();
 		}
 		else if (command == 10) {											// (10) >> 프로그램 종료.
